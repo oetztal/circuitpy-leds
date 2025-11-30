@@ -13,15 +13,23 @@ class Layout(Strip):
         return int((len(self.strip) - abs(self.dead)) / (2 if self.mirror else 1))
 
     def __setitem__(self, index: int | slice, val):
-        if not 0 <= index < len(self):
-            raise IndexError("Index out of range")
-        if self.dead < 0:
-            index += -self.dead
+        index = self.real_index(index)
         self.strip[index] = val
         if self.mirror:
             self.strip[len(self.strip) - index - 1] = val
 
+    def __getitem__(self, index: int):
+        return self.strip[self.real_index(index)]
+
+    def real_index(self, index: int | slice) -> int | slice:
+        if not 0 <= index < len(self):
+            raise IndexError("Index out of range")
+        if self.dead < 0:
+            index += -self.dead
+        return index
+
     def fill(self, color):
         self.strip.fill(color)
+
     def show(self):
         self.strip.show()
