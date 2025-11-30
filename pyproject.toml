@@ -1,0 +1,18 @@
+[project]
+name = "circuitpy-leds"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "adafruit-circuitpython-neopixel>=6.3.18",
+]
+
+[dependency-groups]
+dev = [
+    "circup>=2.3.0",
+    "mock>=5.2.0",
+    "pytest>=8.4.2",
+    "pytest-cover>=3.0.0",
+    "setuptools>=80.9.0",
+]
