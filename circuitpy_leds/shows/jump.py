@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-
-import logging
+import asyncio
 import math
 
-from drivers import LEDStrip
-from helpers.layout import Layout
-from lightshows.templates.colorcycle import ColorCycle
-
-log = logging.getLogger(__name__)
+from circuitpy_leds import Strip
 
 
 class Ball(object):
@@ -32,53 +27,49 @@ class Ball(object):
 
     def is_next(self):
         if self.next:
-            log.debug("next %d", self.height)
+            # log.debug("next %d", self.height)
             self.next = False
             return True
         return False
 
 
-class Jump(ColorCycle):
+class Jump:
     """\
-    Rotates a rainbow color wheel around the strip.
-
-    No parameters necessary
+    Jumping dots
     """
 
-    def __init__(self, strip: LEDStrip, parameters: dict):
-        super().__init__(strip, parameters)
+    def __init__(self, strip: Strip, pause_sec=0.005):
+        self.strip = strip
+        self.num_leds = len(strip)
+
         self.state = {}
         self.stripe = 1
-        self.balls = ()
         self.spare_colors = [(0, 255, 255)]
 
-    def init_parameters(self):
-        super().init_parameters()
-        self.set_parameter('num_steps_per_cycle', 255)
-        self.set_parameter('pause_sec', 0.005)
-
-    def before_start(self):
         self.balls = (
-            Ball(self.layout.block, self.stripe, (255, 0, 0)),
-            Ball(self.layout.block * 0.5, self.stripe, (0, 255, 0)),
-            Ball(self.layout.block * 0.75, self.stripe, (255, 255, 0)),
-            Ball(self.layout.block * 0.88, self.stripe, (255, 0, 255)),
-            Ball(self.layout.block * 0.66, self.stripe, (0, 0, 255))
+            Ball(self.num_leds, self.stripe, (255, 0, 0)),
+            Ball(self.num_leds * 0.5, self.stripe, (0, 255, 0)),
+            Ball(self.num_leds * 0.75, self.stripe, (255, 255, 0)),
+            Ball(self.num_leds * 0.88, self.stripe, (255, 0, 255)),
+            Ball(self.num_leds * 0.66, self.stripe, (0, 0, 255))
         )
 
-    def update(self, current_step: int, current_cycle: int) -> bool:
-        t = (current_step + current_cycle * 256) * 0.1
+        self.pause_sec = pause_sec
 
-        self.strip.clear_buffer()
+    async def execute(self, index: int):
+        t = index * 0.1
+
+        self.strip.fill((0, 0, 0))
 
         for offset in range(0, self.stripe):
             for ball in self.balls:
                 pos = ball.get_pos(t)
                 index = pos + offset
-                self.layout.set_pixel(index, *ball.color)
+                self.strip[index] = ball.color
 
                 if ball.is_next():
                     self.spare_colors.insert(0, ball.color)
                     ball.color = self.spare_colors.pop()
 
-        return True
+        self.strip.show()
+        await asyncio.sleep(self.pause_sec)

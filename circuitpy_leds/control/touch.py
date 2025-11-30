@@ -8,6 +8,7 @@ from . import Control
 from ..config import Config
 from ..SHOWS import Solid, ColorRun, Rainbow, Starlight, TwoColorBlend, TheaterChase
 from ..shows import Wave
+from ..shows.jump import Jump
 from ..support.layout import Layout
 
 touch_show = touchio.TouchIn(board.A2)
@@ -18,8 +19,7 @@ touch_brightness = touchio.TouchIn(board.SDA)
 touch_brightness.threshold = 14000
 
 SHOWS = [
-    (lambda strip, args: Wave(strip),[]),
-    (lambda config, args: Solid(config, *args), [
+    (lambda strip, args: Solid(strip, *args), [
         [(255, 190, 130)],
         [(255, 255, 255)],
         [(255, 0, 0)],
@@ -31,18 +31,20 @@ SHOWS = [
         [(0, 0, 255)],
         [(255, 0, 255)],
     ]),
-    (lambda config, args: TwoColorBlend(config, *args), [
+    (lambda strip, args: TwoColorBlend(strip, *args), [
         [(0, 0, 255), (255, 0, 0)],
         [(0, 255, 0), (255, 0, 0)],
         [(0, 255, 0), (0, 0, 255)],
     ]),
-    (lambda config, args: ColorRun(config), []),
-    (lambda config, args: Rainbow(config), []),
-    (lambda config, args: Starlight(config, *args), [
+    (lambda strip, args: ColorRun(strip), []),
+    (lambda strip, args: Jump(strip, *args), []),
+    (lambda strip, args: Rainbow(strip), []),
+    (lambda strip, args: Wave(strip),[]),
+    (lambda strip, args: Starlight(strip, *args), [
         [0.1, 0.0, 0.25],
         [0.02, 5.0, 1.0],
     ]),
-    (lambda config, args: TheaterChase(config, *args), [[21], [42], [84]]),
+    (lambda strip, args: TheaterChase(strip, *args), [[21], [42], [84]]),
 ]
 
 LAYOUTS = [
@@ -51,6 +53,7 @@ LAYOUTS = [
     lambda pixels: Layout(pixels, 0, True),
     lambda pixels: Layout(pixels, 0, True, True),
     lambda pixels: Layout(pixels, 100, True),
+    lambda pixels: Layout(pixels, 100, True, True),
 ]
 
 brightness = [0.05, 0.1, 0.5]
