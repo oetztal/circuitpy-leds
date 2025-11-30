@@ -62,8 +62,8 @@ brightness = [0.05, 0.1, 0.5]
 async def control_touch(effect: Control, config: Config, pixels: NeoPixel):
     show_index = 0
     mode_index_map = [0] * len(SHOWS)
+    layout_index_map = [0] * len(SHOWS)
     brightness_index = 0
-    layout_index = 0
     updated = True
     pixels.brightness = brightness[brightness_index]
 
@@ -89,13 +89,16 @@ async def control_touch(effect: Control, config: Config, pixels: NeoPixel):
             # pixels.brightness = brightness[brightness_index % len(brightness)]
             # await asyncio.sleep(0.5)
             print("switch layout", touch_brightness.value, touch_brightness.raw_value, touch_brightness.threshold)
+            layout_index = layout_index_map[show_index]
             layout_index += 1
             layout_index = layout_index % len(LAYOUTS)
+            layout_index_map[show_index] = layout_index
             updated = True
 
         if updated:
             show_data = SHOWS[show_index]
             mode_index = mode_index_map[show_index]
+            layout_index = layout_index_map[show_index]
             show_factory = show_data[0]
             show_args = show_data[1][mode_index] if show_data[1] else []
             layout = LAYOUTS[layout_index % len(LAYOUTS)](pixels)
