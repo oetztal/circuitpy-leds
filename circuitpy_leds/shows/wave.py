@@ -22,7 +22,6 @@ class Wave:
         """
         self.strip = strip
         self.num_leds = len(strip)
-        self.center = self.num_leds / 2.0
         self.wave_speed = wave_speed
         self.decay_rate = decay_rate
         self.brightness_frequency = brightness_frequency
@@ -40,21 +39,18 @@ class Wave:
         self.strip.fill((0, 0, 0))
 
         for i in range(self.num_leds):
-            # Calculate distance from center
-            distance = abs(i - self.center)
-
             # Create wave pattern: sine wave propagates outward from center
-            wave_position = (distance - (self.time * self.wave_speed * 10)) / self.wavelength
+            wave_position = (i - (self.time * self.wave_speed * 10)) / self.wavelength
             wave_brightness = (math.sin(wave_position) + 1) / 2  # Normalize to 0-1
 
             # Calculate when this wave element was at the center (emission time)
             # This determines what color it should have
-            emission_time = self.color_time - (distance / (self.wave_speed * 10))
+            emission_time = self.color_time - (i / (self.wave_speed * 10))
             color_index = (emission_time * 20) % 255
             pixel_color = wheel(color_index)
 
             # Apply distance-based decay (exponential decay towards the ends)
-            distance_factor = math.exp(-self.decay_rate * distance / self.num_leds)
+            distance_factor = math.exp(-self.decay_rate * i / self.num_leds)
 
             # Combine source brightness, wave pattern, and distance decay
             final_brightness = source_brightness * wave_brightness * distance_factor
@@ -63,4 +59,4 @@ class Wave:
             self.strip[i] = tuple(int(c * final_brightness) for c in pixel_color)
 
         self.strip.show()
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0)
