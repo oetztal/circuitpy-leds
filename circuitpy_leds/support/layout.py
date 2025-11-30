@@ -1,6 +1,5 @@
-from typing import Union, Sequence
 
-from adafruit_pixelbuf import ColorUnion
+# from adafruit_pixelbuf import ColorUnion
 from circuitpy_leds import Strip
 
 class Layout(Strip):
@@ -13,7 +12,7 @@ class Layout(Strip):
     def __len__(self):
         return int((len(self.strip) - abs(self.dead)) / (2 if self.mirror else 1))
 
-    def __setitem__(self, index: Union[int, slice], val: Union[ColorUnion, Sequence[ColorUnion]]):
+    def __setitem__(self, index: int | slice, val):
         if not 0 <= index < len(self):
             raise IndexError("Index out of range")
         if self.dead < 0:
@@ -22,5 +21,7 @@ class Layout(Strip):
         if self.mirror:
             self.strip[len(self.strip) - index - 1] = val
 
+    def fill(self, color):
+        self.strip.fill(color)
     def show(self):
         self.strip.show()

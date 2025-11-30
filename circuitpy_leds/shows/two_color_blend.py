@@ -1,19 +1,20 @@
 import asyncio
 
-from ..config import Config
-from ..support.color import linear_dim, add_tuples
+from .. import Strip
 from ..support.blend import SmoothBlend
+from ..support.color import linear_dim, add_tuples
 
 
 class TwoColorBlend:
 
-    def __init__(self, config: Config, color1, color2):
-        self.num_leds = config.num_leds
+    def __init__(self, strip: Strip, color1, color2):
+        self.strip = strip
+        self.num_leds = len(strip)
         self.color1 = color1
         self.color2 = color2
         self.blend = None
 
-    async def execute(self, pixels, index):
+    async def execute(self, index):
         if self.blend is None:
             target_colors = []
             for led in range(self.num_leds):
@@ -22,7 +23,7 @@ class TwoColorBlend:
                 component2 = linear_dim(self.color2, normal_distance)
                 led_color = add_tuples(component1, component2)
                 target_colors.append(led_color)
-            self.blend = SmoothBlend(pixels, target_colors)
+            self.blend = SmoothBlend(self.strip, target_colors)
 
         self.blend.step()
 

@@ -14,6 +14,9 @@ class Strip:
     def __setitem__(self, index, value):
         raise NotImplementedError
 
+    def fill(self, color):
+        raise NotImplementedError
+
     # @abstractmethod
     def show(self):
         raise NotImplementedError

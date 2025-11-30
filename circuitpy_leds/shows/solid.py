@@ -1,19 +1,20 @@
 import asyncio
 
-from circuitpy_leds.config import Config
+from .. import Strip
 from ..support.blend import SmoothBlend
 
 
 class Solid:
 
-    def __init__(self, _: Config, color: tuple):
+    def __init__(self, strip: Strip, color: tuple):
+        self.strip = strip
         self.color = color
         self.blend = None
 
 
-    async def execute(self, pixels, index):
+    async def execute(self, _):
         if self.blend is None:
-            self.blend = SmoothBlend(pixels, self.color)
+            self.blend = SmoothBlend(self.strip, self.color)
 
         self.blend.step()
 

@@ -2,23 +2,22 @@ import asyncio
 import random
 import time
 
-from neopixel import NeoPixel
-
-from ..config import Config
+from .. import Strip
 from ..support import probability_of
 
 
 class Starlight:
 
-    def __init__(self, config: Config, probabilty: float = 0.1, length: float = 5, fade: float = 1):
-        self.num_leds = config.num_leds
+    def __init__(self, strip: Strip, probabilty: float = 0.1, length: float = 5, fade: float = 1):
+        self.strip = strip
+        self.num_leds = len(strip)
         self.color = (255, 180, 50)
         self.state = {}
         self.probabilty = probabilty
         self.length = length
         self.fade = fade
 
-    async def execute(self, pixels: NeoPixel, index: int):
+    async def execute(self, index: int):
         now = time.monotonic()
 
         if probability_of(self.probabilty):
@@ -26,7 +25,7 @@ class Starlight:
 
         self.state = {pos: start for pos, start in self.state.items() if (start + 2 * self.fade + self.length) > now}
 
-        pixels.fill((0, 0, 0))
+        self.strip.fill((0, 0, 0))
         for pos, start in self.state.items():
             seconds = now - start
             if seconds < self.fade:
@@ -38,7 +37,7 @@ class Starlight:
             else:
                 brightness = 0.0
 
-            pixels[pos] = tuple(int(c * brightness) for c in self.color)
+            self.strip[pos] = tuple(int(c * brightness) for c in self.color)
 
-        pixels.show()
+        self.strip.show()
         await asyncio.sleep(0.05)

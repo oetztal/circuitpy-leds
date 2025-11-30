@@ -10,7 +10,7 @@ from circuitpy_leds.control.touch import control_touch
 async def run_effect(pixels, control: Control):
     index = 0
     while True:
-        await control.execute(pixels, index)
+        await control.execute(index)
         index += 1
 
 
@@ -24,10 +24,8 @@ async def main():
     # mqtt.subscribe(config.mqtt_prefix)
 
     pixels = NeoPixel(config.output_pin, config.num_leds, auto_write=False, brightness=0.1)
-    pixels.fill((0, 0, 0))
-    pixels.show()
 
-    control = Control()
+    control = Control(pixels)
 
     led_task = asyncio.create_task(run_effect(pixels, control))
     # control_task = asyncio.create_task(control_mqtt(effect, mqtt, config, pixels))

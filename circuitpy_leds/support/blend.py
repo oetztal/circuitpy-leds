@@ -1,5 +1,7 @@
 import time
 
+from circuitpy_leds import Strip
+
 
 def multiply_tuple(values: tuple, factor: float) -> tuple:
     return tuple(value * factor for value in values)
@@ -27,7 +29,7 @@ def linear_blend(start_color: tuple, end_color: tuple, fade_progress: float) -> 
 
 class SmoothBlend:
 
-    def __init__(self, strip, target_colors: tuple | list[tuple]):
+    def __init__(self, strip: Strip, target_colors: tuple | list[tuple]):
         self.strip = strip
         self.target_colors = target_colors if isinstance(target_colors, list) else [target_colors] * len(strip)
         self.start_time = time.monotonic()

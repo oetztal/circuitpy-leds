@@ -3,23 +3,25 @@ import math
 
 from neopixel import NeoPixel
 
+from .. import Strip
 from ..config import Config
 from ..support.color import wheel
 
 
 class Wave:
 
-    def __init__(self, config: Config, wave_speed: float = 2.0, decay_rate: float = 0.5, brightness_frequency: float = .4, wavelength: float = 4.0):
+    def __init__(self, strip: Strip, wave_speed: float = 2.0, decay_rate: float = 0.5, brightness_frequency: float = .4, wavelength: float = 4.0):
         """
         Wave effect that emits from the center with changing brightness and decay towards the ends.
 
-        :param config: Configuration object
+        :param strip: Configuration object
         :param wave_speed: Speed of wave propagation (higher = faster)
         :param decay_rate: Rate of brightness decay towards ends (0-1, higher = faster decay)
         :param brightness_frequency: Frequency of brightness oscillation at the source
         :param wavelength: Wavelength of the wave pattern (higher = longer waves, more spread out)
         """
-        self.num_leds = config.num_leds
+        self.strip = strip
+        self.num_leds = len(strip)
         self.center = self.num_leds / 2.0
         self.wave_speed = wave_speed
         self.decay_rate = decay_rate
@@ -28,14 +30,14 @@ class Wave:
         self.time = 0
         self.color_time = 0
 
-    async def execute(self, pixels: NeoPixel, index: int):
+    async def execute(self, index: int):
         self.time += 0.05
         self.color_time += 0.05
 
         # Calculate source brightness using sine wave (oscillates between 0.3 and 1.0)
         source_brightness = 0.65 + 0.35 * math.sin(self.time * self.brightness_frequency * 2 * math.pi)
 
-        pixels.fill((0, 0, 0))
+        self.strip.fill((0, 0, 0))
 
         for i in range(self.num_leds):
             # Calculate distance from center
@@ -58,7 +60,7 @@ class Wave:
             final_brightness = source_brightness * wave_brightness * distance_factor
 
             # Apply brightness to color
-            pixels[i] = tuple(int(c * final_brightness) for c in pixel_color)
+            self.strip[i] = tuple(int(c * final_brightness) for c in pixel_color)
 
-        pixels.show()
+        self.strip.show()
         await asyncio.sleep(0.05)
