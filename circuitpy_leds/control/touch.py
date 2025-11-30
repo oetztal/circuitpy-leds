@@ -47,7 +47,10 @@ SHOWS = [
 
 LAYOUTS = [
     lambda pixels: Layout(pixels, 0, False),
+    lambda pixels: Layout(pixels, 0, False, True),
     lambda pixels: Layout(pixels, 0, True),
+    lambda pixels: Layout(pixels, 0, True, True),
+    lambda pixels: Layout(pixels, 100, True),
 ]
 
 brightness = [0.05, 0.1, 0.5]

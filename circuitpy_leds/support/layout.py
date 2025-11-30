@@ -4,10 +4,11 @@ from circuitpy_leds import Strip
 
 class Layout(Strip):
 
-    def __init__(self, pixels: Strip, dead=102, mirror=True):
+    def __init__(self, pixels: Strip, dead=102, mirror=True, reverse=False):
         self.strip = pixels
         self.dead = dead
         self.mirror = mirror
+        self.reverse = reverse
 
     def __len__(self):
         return int((len(self.strip) - abs(self.dead)) / (2 if self.mirror else 1))
@@ -26,6 +27,8 @@ class Layout(Strip):
             raise IndexError("Index out of range")
         if self.dead < 0:
             index += -self.dead
+        if self.reverse:
+            index = len(self) - index - 1
         return index
 
     def fill(self, color):

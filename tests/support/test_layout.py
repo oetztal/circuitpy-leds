@@ -1,4 +1,4 @@
-from unittest.mock import patch, call
+from unittest.mock import call
 
 import pytest
 
@@ -25,6 +25,26 @@ class TestPlainLayout:
             plain_layout[index] = (255, 0, 0)
 
 
+class TestReversedPlainLayout:
+    @pytest.fixture
+    def plain_layout(self, mock_strip):
+        mock_strip.__len__.return_value = 300
+        return Layout(mock_strip, 0, False, True)
+
+    def test_length(self, mock_strip, plain_layout):
+        assert len(plain_layout) == 300
+
+    def test_setitem(self, mock_strip, plain_layout):
+        plain_layout[20] = (255, 0, 0)
+
+        mock_strip.__setitem__.assert_called_once_with(279, (255, 0, 0))
+
+    @pytest.mark.parametrize('index', (-1, 300))
+    def test_setitem_index_error(self, mock_strip, plain_layout, index):
+        with pytest.raises(IndexError):
+            plain_layout[index] = (255, 0, 0)
+
+
 class TestMirroredLayout:
     @pytest.fixture
     def layout(self, mock_strip):
@@ -44,6 +64,34 @@ class TestMirroredLayout:
 
         assert mock_strip.__setitem__.call_args_list == [
             call(index, (255, 0, 0)),
+            call(expected_mirror, (255, 0, 0)),
+        ]
+
+    @pytest.mark.parametrize('index', (-1, 300))
+    def test_setitem_index_error(self, mock_strip, layout, index):
+        with pytest.raises(IndexError):
+            layout[index] = (255, 0, 0)
+
+
+class TestMirroredReversedLayout:
+    @pytest.fixture
+    def layout(self, mock_strip):
+        mock_strip.__len__.return_value = 300
+        return Layout(mock_strip, 0, True, True)
+
+    def test_length(self, mock_strip, layout):
+        assert len(layout) == 150
+
+    @pytest.mark.parametrize('index,expected,expected_mirror', (
+            (0, 149, 150),
+            (20, 129, 170),
+            (149, 0, 299),
+    ))
+    def test_setitem(self, mock_strip, layout, index, expected,expected_mirror):
+        layout[index] = (255, 0, 0)
+
+        assert mock_strip.__setitem__.call_args_list == [
+            call(expected, (255, 0, 0)),
             call(expected_mirror, (255, 0, 0)),
         ]
 
