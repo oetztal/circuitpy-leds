@@ -31,3 +31,10 @@ jobs:
       - name: Run tests
         # For example, using `pytest`
         run: uv run pytest tests --cov=circuitpy_leds --cov-report xml:reports/coverage.xml --cov-report term --junitxml=reports/junit.xml
+
+      - name: SonarCloud Scan
+        if: github.secret_source == 'Actions'
+        uses: SonarSource/sonarqube-scan-action@v6.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
