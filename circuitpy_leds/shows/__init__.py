@@ -1,4 +1,5 @@
 from .color_run import ColorRun
+from .jump import Jump
 from .rainbow import Rainbow
 from .solid import Solid
 from .two_color_blend import TwoColorBlend
@@ -10,6 +11,7 @@ SHOW_MAP = {
     "solid": Solid,
     "two_color_blend": TwoColorBlend,
     "rainbow": Rainbow,
+    "jump": Jump,
     "color_run": ColorRun,
     "starlight": Starlight,
     "theater_chase": TheaterChase,

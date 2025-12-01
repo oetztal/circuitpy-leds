@@ -19,6 +19,7 @@ class Rainbow:
             led_index = start_index + i * scale_factor  # Index of LED i, not rounded and not wrapped at 255
             pixel_color = wheel(led_index % 255)  # Get the actual color out of wheel
             self.strip[i] = pixel_color
+            print(pixel_color)
         self.strip.show()
         await asyncio.sleep(0.002)
 

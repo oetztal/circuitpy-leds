@@ -31,4 +31,4 @@ class TheaterChase:
                 self.strip[pixel] = color_index
 
         self.strip.show()
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.005)

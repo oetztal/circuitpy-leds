@@ -1,10 +1,7 @@
 import asyncio
 import math
 
-from neopixel import NeoPixel
-
 from .. import Strip
-from ..config import Config
 from ..support.color import wheel
 
 

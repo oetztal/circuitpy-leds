@@ -13,6 +13,7 @@ class Solid:
 
 
     async def execute(self, _):
+        print("Solid execute")
         if self.blend is None:
             self.blend = SmoothBlend(self.strip, self.color)
 
