@@ -173,7 +173,7 @@ wheels = [
 [[package]]
 name = "circuitpy-leds"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "adafruit-circuitpython-neopixel" },
     { name = "paho-mqtt" },
