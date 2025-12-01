@@ -2,7 +2,7 @@ import adafruit_logging
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from socketpool import SocketPool
 
-from . import Config
+from circuitpy_leds import Config
 
 
 def connect(mqtt_client, userdata, flags, rc):

@@ -3,7 +3,6 @@ import asyncio
 from neopixel import NeoPixel
 
 from circuitpy_leds.config import Config
-from circuitpy_leds.wifi import wifi_connect
 from circuitpy_leds.control import Control
 from circuitpy_leds.control.touch import control_touch
 
