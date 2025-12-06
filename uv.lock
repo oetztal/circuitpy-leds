@@ -177,6 +177,7 @@ source = { editable = "." }
 dependencies = [
     { name = "adafruit-circuitpython-neopixel" },
     { name = "paho-mqtt" },
+    { name = "spidev" },
 ]
 
 [package.dev-dependencies]
@@ -192,6 +193,7 @@ dev = [
 requires-dist = [
     { name = "adafruit-circuitpython-neopixel", specifier = ">=6.3.18" },
     { name = "paho-mqtt", specifier = ">=2.1.0" },
+    { name = "spidev", specifier = ">=3.8" },
 ]
 
 [package.metadata.requires-dev]
@@ -443,6 +445,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922", size = 1201486, upload-time = "2025-05-27T00:56:49.664Z" },
 ]
+
+[[package]]
+name = "spidev"
+version = "3.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/67/87/039b6eeea781598015b538691bc174cc0bf77df9d4d2d3b8bf9245c0de8c/spidev-3.8.tar.gz", hash = "sha256:2bc02fb8c6312d519ebf1f4331067427c0921d3f77b8bcaf05189a2e8b8382c0", size = 13893, upload-time = "2025-09-15T18:56:20.672Z" }
 
 [[package]]
 name = "sysv-ipc"
