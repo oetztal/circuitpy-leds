@@ -37,8 +37,8 @@ class MorseCode:
     """
 
     def __init__(self, strip: Strip, message: str = "HELLO", speed: float = 0.5, sleep_time: float = 0.05,
-                 dot_length: int = 2, dash_length: int = 5, symbol_space: int = 2,
-                 letter_space: int = 4, word_space: int = 6):
+                 dot_length: int = 1, dash_length: int = 3, symbol_space: int = 1,
+                 letter_space: int = 2, word_space: int = 4):
         """
         Initialize Morse Code scrolling show.
 
