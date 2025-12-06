@@ -138,3 +138,133 @@ def test_morse_code_pattern_length_reasonable():
 
     # Longer message should have longer pattern
     assert len(morse_long.pattern) > len(morse_short.pattern)
+
+
+def test_morse_code_custom_dot_length():
+    """Test custom dot length parameter"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # E = single dot with custom length
+    morse = MorseCode(mock_strip, message="E", dot_length=5)
+
+    # Should have 5 LEDs for the dot (plus padding)
+    colored_leds = [c for c in morse.pattern if c != (0, 0, 0)]
+    assert len(colored_leds) == 5
+
+
+def test_morse_code_custom_dash_length():
+    """Test custom dash length parameter"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # T = single dash with custom length
+    morse = MorseCode(mock_strip, message="T", dash_length=7)
+
+    # Should have 7 LEDs for the dash (plus padding)
+    colored_leds = [c for c in morse.pattern if c != (0, 0, 0)]
+    assert len(colored_leds) == 7
+
+
+def test_morse_code_custom_symbol_space():
+    """Test custom symbol space parameter"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # S = ... (3 symbols with spaces between)
+    morse_default = MorseCode(mock_strip, message="S", symbol_space=1)
+    morse_larger = MorseCode(mock_strip, message="S", symbol_space=5)
+
+    # Larger symbol space should result in longer pattern
+    assert len(morse_larger.pattern) > len(morse_default.pattern)
+
+
+def test_morse_code_custom_letter_space():
+    """Test custom letter space parameter"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # HI = 2 letters
+    morse_default = MorseCode(mock_strip, message="HI", letter_space=2)
+    morse_larger = MorseCode(mock_strip, message="HI", letter_space=10)
+
+    # Larger letter space should result in longer pattern
+    assert len(morse_larger.pattern) > len(morse_default.pattern)
+
+
+def test_morse_code_custom_word_space():
+    """Test custom word space parameter"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 200
+
+    # Two words
+    morse_default = MorseCode(mock_strip, message="HI BYE", word_space=4)
+    morse_larger = MorseCode(mock_strip, message="HI BYE", word_space=20)
+
+    # Larger word space should result in longer pattern
+    assert len(morse_larger.pattern) > len(morse_default.pattern)
+
+
+def test_morse_code_zero_spacing():
+    """Test that zero spacing works (no spaces)"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # S with no spacing
+    morse = MorseCode(mock_strip, message="S", symbol_space=0, letter_space=0, word_space=0)
+
+    # Should still create a valid pattern (just 3 dots with no spaces)
+    assert len(morse.pattern) > 0
+    colored_leds = [c for c in morse.pattern if c != (0, 0, 0)]
+    # S = ... (3 dots with default dot_length=1)
+    assert len(colored_leds) == 3
+
+
+def test_morse_code_standard_timing():
+    """Test standard morse timing (1-3-1-3-7)"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 200
+
+    # Standard international morse timing
+    morse = MorseCode(
+        mock_strip,
+        message="SOS",
+        dot_length=1,
+        dash_length=3,
+        symbol_space=1,
+        letter_space=3,
+        word_space=7
+    )
+
+    # Should create a valid pattern with standard timing
+    assert len(morse.pattern) > 0
+    assert morse.dot_length == 1
+    assert morse.dash_length == 3
+    assert morse.symbol_space == 1
+    assert morse.letter_space == 3
+    assert morse.word_space == 7
+
+
+def test_morse_code_parameter_bounds():
+    """Test that parameters are bounded to valid ranges"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 100
+
+    # Test negative values are corrected
+    morse = MorseCode(
+        mock_strip,
+        message="E",
+        dot_length=-5,
+        dash_length=0,
+        symbol_space=-1,
+        letter_space=-2,
+        word_space=-3
+    )
+
+    # dot_length and dash_length should be at least 1
+    assert morse.dot_length >= 1
+    assert morse.dash_length >= 1
+    # Spacing can be 0 or positive
+    assert morse.symbol_space >= 0
+    assert morse.letter_space >= 0
+    assert morse.word_space >= 0
