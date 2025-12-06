@@ -1,9 +1,11 @@
 import spidev
-from multiprocessing import Array as SyncedArray
 
 from ..config import Config
 from ..support.color import grayscale_correction
 from .. import Strip
+
+# TODO: part of this code has been copied from https://github.com/Yottabits/102shows, this needs to be declared properly
+
 
 class APA102(Strip):
 
@@ -17,7 +19,6 @@ class APA102(Strip):
 
         self.led_colors = [(0.0, 0.0, 0.0)] * self.num_leds
         self.leds = [self.led_prefix(self._global_brightness), 0, 0, 0] * self.num_leds  # 4 bytes per LED
-        self.synced_buffer = SyncedArray('i', self.leds)
 
     @classmethod
     def led_prefix(cls, brightness: float) -> int:
@@ -59,8 +60,6 @@ class APA102(Strip):
 
         self.spi.xfer2(self.spi_start_frame())
         self.spi.xfer2(self.leds.copy())  # SPI takes up to 4096 Integers. So we are fine for up to 1024 LEDs.
-        # if self.__sk9822_compatibility_mode:
-        #     self.spi.xfer2(self.spi_start_frame())
         self.spi.xfer(self.spi_end_frame(self.num_leds))
 
     @staticmethod

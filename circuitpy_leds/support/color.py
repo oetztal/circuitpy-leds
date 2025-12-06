@@ -1,3 +1,5 @@
+# TODO: part of this code has been copied from https://github.com/Yottabits/102shows, this needs to be declared properly
+
 def grayscale_correction(lightness: float, max_in: float = 255.0, max_out: int = 255):
     """\
     Corrects the non-linear human perception of the led brightness according to the CIE 1931 standard.
