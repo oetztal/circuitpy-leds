@@ -40,4 +40,4 @@ class Starlight:
             self.strip[pos] = tuple(int(c * brightness) for c in self.color)
 
         self.strip.show()
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.025)
