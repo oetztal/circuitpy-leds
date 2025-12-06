@@ -8,19 +8,19 @@ from ..support import probability_of
 
 class Starlight:
 
-    def __init__(self, strip: Strip, probabilty: float = 0.1, length: float = 5, fade: float = 1):
+    def __init__(self, strip: Strip, probability: float = 0.1, length: float = 5, fade: float = 1):
         self.strip = strip
         self.num_leds = len(strip)
         self.color = (255, 180, 50)
         self.state = {}
-        self.probabilty = probabilty
+        self.probability = probability
         self.length = length
         self.fade = fade
 
     async def execute(self, index: int):
         now = time.monotonic()
 
-        if probability_of(self.probabilty):
+        if probability_of(self.probability):
             self.state[random.randint(0, self.num_leds - 1)] = now
 
         self.state = {pos: start for pos, start in self.state.items() if (start + 2 * self.fade + self.length) > now}
@@ -40,4 +40,4 @@ class Starlight:
             self.strip[pos] = tuple(int(c * brightness) for c in self.color)
 
         self.strip.show()
-        await asyncio.sleep(0.05)
+        await asyncio.sleep(0.025)

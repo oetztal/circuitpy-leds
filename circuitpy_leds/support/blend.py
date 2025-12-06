@@ -36,12 +36,15 @@ class SmoothBlend:
         self.initial_colors = [strip[i] for i in range(len(strip))]
 
     def step(self):
+        print("step")
         now = time.monotonic()
         fade_progress = 1.0 - min((now - self.start_time) / 2.0, 1.0)
 
         for led_num in range(len(self.strip)):
             # print("blend", now, led_num, fade_progress)
             color = linear_blend(self.initial_colors[led_num], self.target_colors[led_num], fade_progress)
+            if led_num == 0:
+                print(color)
             self.strip[led_num] = color
 
         self.strip.show()

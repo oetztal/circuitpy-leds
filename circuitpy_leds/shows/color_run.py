@@ -28,4 +28,4 @@ class ColorRun:
             self.strip[int((index - start) * speed)] = color
 
         self.strip.show()
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.005)

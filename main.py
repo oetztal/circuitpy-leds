@@ -3,11 +3,10 @@ import asyncio
 from neopixel import NeoPixel
 
 from circuitpy_leds.config import Config
-from circuitpy_leds.wifi import wifi_connect
 from circuitpy_leds.control import Control
 from circuitpy_leds.control.touch import control_touch
 
-async def run_effect(pixels, control: Control):
+async def run_effect(control: Control):
     index = 0
     while True:
         await control.execute(index)
@@ -27,7 +26,7 @@ async def main():
 
     control = Control(pixels)
 
-    led_task = asyncio.create_task(run_effect(pixels, control))
+    led_task = asyncio.create_task(run_effect(control))
     # control_task = asyncio.create_task(control_mqtt(effect, mqtt, config, pixels))
     # control_task = asyncio.create_task(control_tcp(control, config, pixels))
     control_task = asyncio.create_task(control_touch(control, config, pixels))
