@@ -7,7 +7,7 @@ from ..support.color import wheel
 
 class Wave:
 
-    def __init__(self, strip: Strip, wave_speed: float = 2.0, decay_rate: float = 0.5, brightness_frequency: float = .4, wavelength: float = 4.0):
+    def __init__(self, strip: Strip, wave_speed: float = 1.0, decay_rate: float = 2.0, brightness_frequency: float = .1, wavelength: float = 6.0):
         """
         Wave effect that emits from the center with changing brightness and decay towards the ends.
 
