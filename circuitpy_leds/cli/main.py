@@ -26,7 +26,7 @@ async def async_main(config):
     # control.current_show = Starlight(strip, 0.1, 0.0, 0.25)
     # control.current_show = Wave(Layout(strip,0, True, True))
     # control.current_show = MorseCode(strip, message="foo bar baz qux quux", speed=0.5, sleep_time=0.025)
-    control.current_show = ColorRanges(strip, colors=[(0,0,255), (255,255,0)])
+    control.current_show = ColorRanges(sides, colors=[(0,0,255), (255,255,0)])
     led_task = asyncio.create_task(run_effect(control))
 
     await asyncio.gather(led_task)
