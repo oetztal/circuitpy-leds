@@ -105,7 +105,9 @@ class TestMirroredLayoutWithDeadLEDs:
     @pytest.fixture
     def layout(self, mock_strip):
         mock_strip.__len__.return_value = 300
-        return Layout(mock_strip, 80, True)
+        layout = Layout(mock_strip, 80, True)
+        mock_strip.__setitem__.reset_mock()  # Reset after clearing dead LEDs
+        return layout
 
     def test_length(self, layout):
         assert len(layout) == 110
@@ -134,7 +136,9 @@ class TestPlainLayoutWithDeadLEDs:
     @pytest.fixture
     def layout(self, mock_strip):
         mock_strip.__len__.return_value = 300
-        return Layout(mock_strip, 80, False)
+        layout = Layout(mock_strip, 80, False)
+        mock_strip.__setitem__.reset_mock()  # Reset after clearing dead LEDs
+        return layout
 
     def test_length(self, mock_strip, layout):
         assert len(layout) == 220
@@ -160,7 +164,9 @@ class TestPlainLayoutWithNegativeDeadLEDs:
     @pytest.fixture
     def layout(self, mock_strip):
         mock_strip.__len__.return_value = 300
-        return Layout(mock_strip, -80, False)
+        layout = Layout(mock_strip, -80, False)
+        mock_strip.__setitem__.reset_mock()  # Reset after clearing dead LEDs
+        return layout
 
     def test_length(self, mock_strip, layout):
         assert len(layout) == 220

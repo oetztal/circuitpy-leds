@@ -10,6 +10,9 @@ class Layout(Strip):
         self.mirror = mirror
         self.reverse = reverse
 
+        # Clear dead LEDs (turn them off)
+        self._clear_dead_leds()
+
     def __len__(self):
         return int((len(self.strip) - abs(self.dead)) / (2 if self.mirror else 1))
 
@@ -36,3 +39,20 @@ class Layout(Strip):
 
     def show(self):
         self.strip.show()
+
+    def _clear_dead_leds(self):
+        """Clear (turn off) the dead LEDs."""
+        if self.dead == 0:
+            return
+
+        black = (0, 0, 0)
+
+        if self.dead > 0:
+            # Dead LEDs at the end of the strip
+            start = len(self.strip) - self.dead
+            for i in range(start, len(self.strip)):
+                self.strip[i] = black
+        else:
+            # Dead LEDs at the beginning of the strip (negative dead)
+            for i in range(abs(self.dead)):
+                self.strip[i] = black
