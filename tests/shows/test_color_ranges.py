@@ -461,3 +461,113 @@ def test_color_ranges_empty_ranges_list():
     assert color_ranges.target_colors[15] == (0, 255, 0)
     # Last 10 should be blue
     assert color_ranges.target_colors[29] == (0, 0, 255)
+
+
+@pytest.mark.asyncio
+async def test_color_ranges_execute_creates_blend_on_first_call():
+    """Test that execute() creates SmoothBlend on first call"""
+    from unittest.mock import patch
+
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 30
+
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)]
+    )
+
+    # Mock asyncio.sleep to avoid actual delays
+    with patch('asyncio.sleep', return_value=None):
+        # Initially blend should be None
+        assert color_ranges.blend is None
+
+        # After first execute, blend should be created
+        await color_ranges.execute(0)
+        assert color_ranges.blend is not None
+
+        # Verify the blend has correct target colors
+        assert len(color_ranges.blend.target_colors) == 30
+
+
+@pytest.mark.asyncio
+async def test_color_ranges_execute_reuses_blend_on_subsequent_calls():
+    """Test that execute() reuses the same SmoothBlend instance"""
+    from unittest.mock import patch
+
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 30
+
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (0, 255, 0)]
+    )
+
+    with patch('asyncio.sleep', return_value=None):
+        # Execute first time
+        await color_ranges.execute(0)
+        first_blend = color_ranges.blend
+
+        # Execute second time
+        await color_ranges.execute(1)
+        second_blend = color_ranges.blend
+
+        # Should be the same instance
+        assert first_blend is second_blend
+
+
+@pytest.mark.asyncio
+async def test_color_ranges_execute_calls_blend_step():
+    """Test that execute() calls blend.step() each time"""
+    from unittest.mock import Mock, patch
+
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 10
+
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (0, 0, 255)],
+        ranges=[50]  # 50-50 split
+    )
+
+    with patch('asyncio.sleep', return_value=None):
+        # Execute first time to create blend
+        await color_ranges.execute(0)
+
+        # Mock blend.step to track calls
+        original_step = color_ranges.blend.step
+        color_ranges.blend.step = Mock(side_effect=original_step)
+
+        # Execute again
+        await color_ranges.execute(1)
+
+        # Verify step was called
+        assert color_ranges.blend.step.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_color_ranges_execute_with_custom_ranges():
+    """Test that execute() works correctly with custom boundary ranges"""
+    from unittest.mock import patch
+
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 20
+
+    # Create with custom boundaries (30% red, 40% white, 30% blue)
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)],
+        ranges=[30, 70]
+    )
+
+    with patch('asyncio.sleep', return_value=None):
+        # Execute should work without errors
+        await color_ranges.execute(0)
+
+        # Verify blend was created with correct target colors
+        assert color_ranges.blend is not None
+        assert len(color_ranges.blend.target_colors) == 20
+
+        # Verify colors match expectations
+        assert color_ranges.blend.target_colors[0] == (255, 0, 0)  # Red
+        assert color_ranges.blend.target_colors[10] == (255, 255, 255)  # White
+        assert color_ranges.blend.target_colors[19] == (0, 0, 255)  # Blue
