@@ -10,6 +10,7 @@ except ImportError:
 from .. import Strip
 from ..config import Config
 from ..shows import SHOW_MAP
+from ..support.layout import Layout
 from . import Control
 
 
@@ -240,14 +241,16 @@ class AsyncMQTTControl:
         {
           "show": "solid",
           "args": [[255, 0, 0]],
-          "kwargs": {}
+          "kwargs": {},
+          "layout": {
+            "dead": 0,
+            "mirror": false,
+            "reverse": false
+          }
         }
 
-        Or shorthand for specific shows:
-        {
-          "show": "solid",
-          "color": [255, 0, 0]
-        }
+        The layout parameter is optional. If specified, it wraps the pixel strip
+        with a Layout instance before creating the show.
         """
         try:
             message = json.loads(payload)
@@ -265,33 +268,25 @@ class AsyncMQTTControl:
             return
 
         # Parse args and kwargs
+        # Note: JSON arrays become Python lists, but most shows accept lists as colors
+        # ColorRanges specifically expects list[list[int]] and validates/converts internally
         args = message.get('args', [])
         kwargs = message.get('kwargs', {})
 
-        # Handle shorthand formats for common shows
-        if 'color' in message and show_name == 'solid':
-            # Convert list to tuple if needed
-            color = message['color']
-            args = [tuple(color) if isinstance(color, list) else color]
-        elif 'colors' in message and show_name == 'color_ranges':
-            # Convert lists to tuples
-            colors = message['colors']
-            kwargs['colors'] = [tuple(c) if isinstance(c, list) else c for c in colors]
-            if 'ranges' in message:
-                kwargs['ranges'] = message['ranges']
-        elif 'color1' in message and 'color2' in message and show_name == 'two_color_blend':
-            # Convert lists to tuples if needed
-            color1 = message['color1']
-            color2 = message['color2']
-            args = [
-                tuple(color1) if isinstance(color1, list) else color1,
-                tuple(color2) if isinstance(color2, list) else color2
-            ]
+        # Handle layout configuration
+        pixels = self.pixels
+        layout_config = message.get('layout')
+        if layout_config:
+            dead = layout_config.get('dead', 0)
+            mirror = layout_config.get('mirror', False)
+            reverse = layout_config.get('reverse', False)
+            pixels = Layout(self.pixels, dead=dead, mirror=mirror, reverse=reverse)
+            print(f"Using layout: dead={dead}, mirror={mirror}, reverse={reverse}")
 
         # Instantiate and switch show
         try:
             print(f"show {show_name} args: {args} kwargs: {kwargs}")
-            new_show = SHOW_MAP[show_name](self.pixels, *args, **kwargs)
+            new_show = SHOW_MAP[show_name](pixels, *args, **kwargs)
             self.control.current_show = new_show
             self.current_show_name = show_name
             print(f"Switched to show: {show_name}")

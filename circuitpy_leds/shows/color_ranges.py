@@ -68,10 +68,10 @@ class ColorRanges:
         if not colors:
             raise ValueError("Colors list cannot be empty")
 
-        # Validate color tuples
+        # Validate color tuples/lists
         for color in colors:
-            if not isinstance(color, list) or len(color) != 3:
-                raise ValueError(f"Color must be RGB tuple (r, g, b), got {color}")
+            if not isinstance(color, (list, tuple)) or len(color) != 3:
+                raise ValueError(f"Color must be RGB tuple/list (r, g, b), got {color}")
             if not all(isinstance(c, int) and 0 <= c <= 255 for c in color):
                 raise ValueError(f"Color values must be integers 0-255, got {color}")
 

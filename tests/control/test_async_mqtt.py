@@ -86,7 +86,7 @@ async def test_on_message_queues_message(mock_control, mock_pixels, mock_config,
     # Create mock Paho message object
     mock_message = MagicMock()
     mock_message.topic = "test/led/command/show"
-    mock_message.payload = b'{"show": "solid", "color": [255, 0, 0]}'
+    mock_message.payload = b'{"show": "solid", "args": [[255, 0, 0]]}'
 
     # Call the message callback with Paho signature: (client, userdata, message)
     mqtt._on_message(None, None, mock_message)
@@ -103,7 +103,7 @@ async def test_handle_show_command_solid(mock_control, mock_pixels, mock_config,
     """Test handling show command for solid color"""
     mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
 
-    payload = json.dumps({"show": "solid", "color": [255, 0, 0]})
+    payload = json.dumps({"show": "solid", "args": [[255, 0, 0]]})
 
     await mqtt._handle_show_command(payload)
 
@@ -119,8 +119,10 @@ async def test_handle_show_command_color_ranges(mock_control, mock_pixels, mock_
 
     payload = json.dumps({
         "show": "color_ranges",
-        "colors": [[255, 0, 0], [255, 255, 255], [0, 0, 255]],
-        "ranges": [30, 70]
+        "kwargs": {
+            "colors": [[255, 0, 0], [255, 255, 255], [0, 0, 255]],
+            "ranges": [30, 70]
+        }
     })
 
     await mqtt._handle_show_command(payload)
@@ -243,7 +245,7 @@ async def test_handle_message_routing_show(mock_control, mock_pixels, mock_confi
     mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
 
     topic = "test/led/command/show"
-    payload = json.dumps({"show": "solid", "color": [0, 255, 0]})
+    payload = json.dumps({"show": "solid", "args": [[0, 255, 0]]})
 
     await mqtt._handle_message(topic, payload)
 
@@ -345,14 +347,13 @@ async def test_show_switching_with_args(mock_control, mock_pixels, mock_config, 
 
 
 @pytest.mark.asyncio
-async def test_show_switching_with_shorthand(mock_control, mock_pixels, mock_config, mock_mqtt_client):
-    """Test show switching with shorthand format"""
+async def test_show_switching_two_color_blend(mock_control, mock_pixels, mock_config, mock_mqtt_client):
+    """Test show switching with two_color_blend"""
     mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
 
     payload = json.dumps({
         "show": "two_color_blend",
-        "color1": [255, 0, 0],
-        "color2": [0, 0, 255]
+        "args": [[255, 0, 0], [0, 0, 255]]
     })
 
     await mqtt._handle_show_command(payload)
@@ -381,3 +382,68 @@ def test_message_queue_empty_initially(mock_control, mock_pixels, mock_config, m
     mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
 
     assert mqtt.message_queue.empty()
+
+
+@pytest.mark.asyncio
+async def test_show_command_with_layout(mock_control, mock_pixels, mock_config, mock_mqtt_client):
+    """Test show command with layout configuration"""
+    mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
+
+    payload = json.dumps({
+        "show": "solid",
+        "args": [[255, 0, 0]],
+        "layout": {
+            "dead": 10,
+            "mirror": True,
+            "reverse": False
+        }
+    })
+
+    await mqtt._handle_show_command(payload)
+
+    # Verify show was changed
+    assert mqtt.control.current_show is not None
+    assert mqtt.current_show_name == "solid"
+
+
+@pytest.mark.asyncio
+async def test_show_command_with_layout_mirrored(mock_control, mock_pixels, mock_config, mock_mqtt_client):
+    """Test show command with mirrored layout"""
+    mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
+
+    payload = json.dumps({
+        "show": "color_ranges",
+        "kwargs": {
+            "colors": [[255, 0, 0], [255, 255, 255], [0, 0, 255]],
+            "ranges": [30, 70]
+        },
+        "layout": {
+            "mirror": True
+        }
+    })
+
+    await mqtt._handle_show_command(payload)
+
+    # Verify show was changed
+    assert mqtt.control.current_show is not None
+    assert mqtt.current_show_name == "color_ranges"
+
+
+@pytest.mark.asyncio
+async def test_show_command_with_layout_reversed(mock_control, mock_pixels, mock_config, mock_mqtt_client):
+    """Test show command with reversed layout"""
+    mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
+
+    payload = json.dumps({
+        "show": "solid",
+        "args": [[0, 255, 0]],
+        "layout": {
+            "reverse": True
+        }
+    })
+
+    await mqtt._handle_show_command(payload)
+
+    # Verify show was changed
+    assert mqtt.control.current_show is not None
+    assert mqtt.current_show_name == "solid"
