@@ -27,7 +27,7 @@ class Config:
 
     @property
     def mqtt_prefix(self) -> str:
-        return os.getenv("MQTT_PREFIX", "sensors")
+        return os.getenv("MQTT_PREFIX", "ledstrip")
 
     @property
     def mqtt_status_interval(self) -> int:

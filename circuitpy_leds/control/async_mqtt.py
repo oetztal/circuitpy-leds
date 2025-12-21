@@ -1,13 +1,13 @@
 import asyncio
 import json
 import time
-from typing import Optional
 
 try:
     import paho.mqtt.client as mqtt
 except ImportError:
     mqtt = None
 
+from .. import Strip
 from ..config import Config
 from ..shows import SHOW_MAP
 from . import Control
@@ -25,7 +25,7 @@ class AsyncMQTTControl:
     - Graceful error handling
     """
 
-    def __init__(self, control: Control, pixels, config: Config, mqtt_client=None):
+    def __init__(self, control: Control, pixels: Strip, config: Config, mqtt_client=None):
         """
         Initialize async MQTT control.
 
@@ -382,9 +382,11 @@ class AsyncMQTTControl:
         """
         Periodically publish status to MQTT.
         """
+        mqtt_status_interval = 30 # self.config.mqtt_status_interval
         while self.running:
             try:
-                await asyncio.sleep(self.config.mqtt_status_interval)
+                print(self.config)
+                await asyncio.sleep(mqtt_status_interval)
 
                 if self.connected:
                     await self._publish_status()
