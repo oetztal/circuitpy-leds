@@ -290,6 +290,7 @@ class AsyncMQTTControl:
 
         # Instantiate and switch show
         try:
+            print(f"show {show_name} args: {args} kwargs: {kwargs}")
             new_show = SHOW_MAP[show_name](self.pixels, *args, **kwargs)
             self.control.current_show = new_show
             self.current_show_name = show_name

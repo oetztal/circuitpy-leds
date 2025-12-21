@@ -24,7 +24,7 @@ class ColorRanges:
         ColorRanges(strip, colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)], ranges=[30, 70])
     """
 
-    def __init__(self, strip: Strip, colors: list[tuple], ranges: list[float] = None):
+    def __init__(self, strip: Strip, colors: list[list[int]], ranges: list[float] = None):
         """
         Initialize ColorRanges effect.
 
@@ -57,7 +57,7 @@ class ColorRanges:
         self.target_colors = self._compute_led_colors()
         self.blend = None
 
-    def _validate_colors(self, colors: list[tuple]) -> list[tuple]:
+    def _validate_colors(self, colors: list[list[int]]) -> list[tuple]:
         """
         Validate color list.
 
@@ -70,12 +70,12 @@ class ColorRanges:
 
         # Validate color tuples
         for color in colors:
-            if not isinstance(color, tuple) or len(color) != 3:
+            if not isinstance(color, list) or len(color) != 3:
                 raise ValueError(f"Color must be RGB tuple (r, g, b), got {color}")
             if not all(isinstance(c, int) and 0 <= c <= 255 for c in color):
                 raise ValueError(f"Color values must be integers 0-255, got {color}")
 
-        return colors
+        return [tuple(color) for color in colors]
 
     def _validate_boundary_ranges(self, ranges: list[float], num_colors: int):
         """
