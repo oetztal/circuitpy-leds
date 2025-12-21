@@ -16,22 +16,28 @@ async def run_effect(control: Control):
 async def main():
     print("starting main")
     config = Config()
-    # socket_pool = wifi_connect(config)
-
-    # mqtt = MQTTClient(socket_pool, config)
-    # mqtt.connect()
-    # mqtt.subscribe(config.mqtt_prefix)
 
     pixels = NeoPixel(config.output_pin, config.num_leds, auto_write=False, brightness=0.1)
 
     control = Control(pixels)
 
-    led_task = asyncio.create_task(run_effect(control))
-    # control_task = asyncio.create_task(control_mqtt(effect, mqtt, config, pixels))
-    # control_task = asyncio.create_task(control_tcp(control, config, pixels))
-    control_task = asyncio.create_task(control_touch(control, config, pixels))
+    # Create task list
+    tasks = [
+        asyncio.create_task(run_effect(control)),
+        asyncio.create_task(control_touch(control, config, pixels))
+    ]
 
-    await asyncio.gather(led_task, control_task)
+    # Add MQTT control if configured
+    if config.mqtt_host:
+        print(f"MQTT enabled - connecting to {config.mqtt_host}")
+        from circuitpy_leds.control.async_mqtt import AsyncMQTTControl
+
+        mqtt_control = AsyncMQTTControl(control, pixels, config)
+        tasks.append(asyncio.create_task(mqtt_control.run()))
+    else:
+        print("MQTT disabled - no MQTT_HOST configured")
+
+    await asyncio.gather(*tasks)
 
 
 asyncio.run(main())
