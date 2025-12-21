@@ -1,4 +1,5 @@
 import asyncio
+import math
 
 from .. import Strip
 from ..support.blend import SmoothBlend
@@ -165,7 +166,7 @@ class ColorRanges:
         if self.num_leds == 1:
             return [self.ranges[0][2]]
 
-        led_colors = [None] * self.num_leds
+        led_colors = [(0,0,0)] * self.num_leds
 
         # Convert percentage ranges to LED index ranges and assign colors
         for start_pct, end_pct, color in self.ranges:
@@ -175,7 +176,7 @@ class ColorRanges:
             end_idx = int((end_pct / 100.0) * self.num_leds)
 
             # Handle the last range specially to ensure it includes the final LED
-            if end_pct == 100.0:
+            if math.isclose(end_pct, 100.0, rel_tol=1e-06, abs_tol=1e-06):
                 end_idx = self.num_leds
 
             # Assign this color to all LEDs in this range
@@ -184,7 +185,7 @@ class ColorRanges:
 
         return led_colors
 
-    async def execute(self, index):
+    async def execute(self, _):
         """
         Execute one frame of the color ranges effect.
 
@@ -198,4 +199,4 @@ class ColorRanges:
 
         self.blend.step()
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.025)
