@@ -12,6 +12,7 @@ The following LED effects are currently implemented:
 - **Starlight** - Simulates twinkling stars with random LED activations that fade in and out
 - **Theater Chase** - Classic theater marquee chase pattern with rotating color wheel
 - **Two Color Blend** - Smooth gradient blend between two colors across the strip
+- **Color Ranges** - Display solid color sections with sharp transitions (perfect for flags)
 - **Jump** - Animated bouncing balls with different heights and colors (physics-based simulation)
 - **Wave** - Emits pulsing waves from the center with oscillating brightness and exponential decay towards the ends
 

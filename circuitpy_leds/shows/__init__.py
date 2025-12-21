@@ -1,3 +1,4 @@
+from .color_ranges import ColorRanges
 from .color_run import ColorRun
 from .jump import Jump
 from .morse_code import MorseCode
@@ -18,4 +19,5 @@ SHOW_MAP = {
     "theater_chase": TheaterChase,
     "wave": Wave,
     "morse_code": MorseCode,
+    "color_ranges": ColorRanges,
 }
