@@ -1,8 +1,7 @@
 import asyncio
 
-from shows import ColorRanges
 from ..support.layout import Layout
-from ..shows import ColorRun, Solid, Rainbow, TheaterChase, Jump, Starlight, MorseCode, Wave
+from ..shows import ColorRun, ColorRanges, Solid, Rainbow, TheaterChase, Jump, Starlight, MorseCode, Wave
 from ..config import Config
 from ..control import Control
 from ..driver.apa102 import APA102
