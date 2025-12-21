@@ -81,6 +81,7 @@ def test_async_mqtt_control_initialization(mock_control, mock_pixels, mock_confi
 async def test_on_message_queues_message(mock_control, mock_pixels, mock_config, mock_mqtt_client):
     """Test that _on_message queues messages correctly"""
     mqtt = AsyncMQTTControl(mock_control, mock_pixels, mock_config, mock_mqtt_client)
+    mqtt.loop = asyncio.get_event_loop()  # Set loop for thread-safe operations
 
     # Create mock Paho message object
     mock_message = MagicMock()

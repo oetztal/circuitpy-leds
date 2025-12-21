@@ -43,12 +43,14 @@ class AsyncMQTTControl:
         self.connected = False
         self.start_time = time.monotonic()
         self.current_show_name = None
+        self.loop = None  # Event loop reference for thread-safe scheduling
 
     async def run(self):
         """
         Main entry point - runs all MQTT tasks concurrently.
         """
         self.running = True
+        self.loop = asyncio.get_event_loop()  # Store loop reference for callbacks
 
         try:
             # Run all tasks concurrently
@@ -123,6 +125,8 @@ class AsyncMQTTControl:
     def _on_connect(self, client, userdata, flags, rc):
         """
         Callback when connection is established.
+
+        This runs in Paho's background thread, so we need thread-safe scheduling.
         """
         if rc == 0:
             print("MQTT connected successfully")
@@ -132,8 +136,11 @@ class AsyncMQTTControl:
             client.subscribe(command_base)
             print(f"Subscribed to {command_base}")
 
-            # Publish initial status
-            asyncio.create_task(self._publish_status())
+            # Publish initial status (thread-safe)
+            if self.loop:
+                self.loop.call_soon_threadsafe(
+                    lambda: asyncio.create_task(self._publish_status())
+                )
         else:
             print(f"MQTT connection failed with code {rc}")
             self.connected = False
@@ -164,15 +171,14 @@ class AsyncMQTTControl:
             print(f"Error decoding message: {e}")
             return
 
-        # Queue message for async processing
-        try:
-            # Use call_soon_threadsafe for thread safety
-            loop = asyncio.get_event_loop()
-            loop.call_soon_threadsafe(
-                lambda: asyncio.create_task(self.message_queue.put((topic, payload)))
-            )
-        except Exception as e:
-            print(f"Error queuing message: {e}")
+        # Queue message for async processing (thread-safe)
+        if self.loop:
+            try:
+                self.loop.call_soon_threadsafe(
+                    lambda: asyncio.create_task(self.message_queue.put((topic, payload)))
+                )
+            except Exception as e:
+                print(f"Error queuing message: {e}")
 
     async def _message_processor(self):
         """
