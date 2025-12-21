@@ -47,12 +47,28 @@ class Layout(Strip):
 
         black = (0, 0, 0)
 
-        if self.dead > 0:
-            # Dead LEDs at the end of the strip
-            start = len(self.strip) - self.dead
-            for i in range(start, len(self.strip)):
-                self.strip[i] = black
+        if self.mirror:
+            # For mirrored layouts, dead LEDs are in the middle
+            if self.dead > 0:
+                # Dead LEDs in the middle between mirrored sections
+                # Left side: 0 to (len(self)-1), Dead middle, Right side (mirrored)
+                left_side_end = len(self)
+                dead_start = left_side_end
+                dead_end = dead_start + self.dead
+                for i in range(dead_start, dead_end):
+                    self.strip[i] = black
+            else:
+                # Negative dead with mirror: dead LEDs at the beginning
+                for i in range(abs(self.dead)):
+                    self.strip[i] = black
         else:
-            # Dead LEDs at the beginning of the strip (negative dead)
-            for i in range(abs(self.dead)):
-                self.strip[i] = black
+            # For non-mirrored layouts
+            if self.dead > 0:
+                # Dead LEDs at the end of the strip
+                start = len(self.strip) - self.dead
+                for i in range(start, len(self.strip)):
+                    self.strip[i] = black
+            else:
+                # Dead LEDs at the beginning of the strip (negative dead)
+                for i in range(abs(self.dead)):
+                    self.strip[i] = black
