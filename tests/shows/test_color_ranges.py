@@ -4,55 +4,43 @@ from unittest.mock import MagicMock
 from circuitpy_leds.shows.color_ranges import ColorRanges
 
 
-def test_color_ranges_initialization_with_colors():
-    """Test that ColorRanges initializes correctly with colors list"""
+def test_color_ranges_initialization_with_colors_only():
+    """Test that ColorRanges initializes correctly with colors list only (equal distribution)"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
     color_ranges = ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)])
 
     assert color_ranges.num_leds == 30
+    assert len(color_ranges.colors) == 3
     assert len(color_ranges.ranges) == 3
     assert len(color_ranges.target_colors) == 30
     assert color_ranges.blend is None
 
 
-def test_color_ranges_initialization_with_ranges():
-    """Test that ColorRanges initializes correctly with explicit ranges"""
+def test_color_ranges_initialization_with_custom_ranges():
+    """Test that ColorRanges initializes correctly with custom boundary ranges"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    ranges = [
-        (0, 40, (255, 0, 0)),
-        (40, 60, (255, 255, 255)),
-        (60, 100, (0, 0, 255))
-    ]
-    color_ranges = ColorRanges(mock_strip, ranges=ranges)
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)],
+        ranges=[40, 60]
+    )
 
     assert color_ranges.num_leds == 30
-    assert color_ranges.ranges == ranges
+    assert len(color_ranges.colors) == 3
+    assert len(color_ranges.ranges) == 3
     assert len(color_ranges.target_colors) == 30
 
 
-def test_color_ranges_validation_both_specified():
-    """Test that specifying both colors and ranges raises ValueError"""
+def test_color_ranges_validation_missing_colors():
+    """Test that missing colors parameter raises TypeError"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    with pytest.raises(ValueError, match="Specify either 'colors' or 'ranges', not both"):
-        ColorRanges(
-            mock_strip,
-            colors=[(255, 0, 0)],
-            ranges=[(0, 100, (255, 0, 0))]
-        )
-
-
-def test_color_ranges_validation_neither_specified():
-    """Test that specifying neither colors nor ranges raises ValueError"""
-    mock_strip = MagicMock()
-    mock_strip.__len__.return_value = 30
-
-    with pytest.raises(ValueError, match="Must specify either 'colors' or 'ranges'"):
+    with pytest.raises(TypeError):
         ColorRanges(mock_strip)
 
 
@@ -63,15 +51,6 @@ def test_color_ranges_validation_empty_colors():
 
     with pytest.raises(ValueError, match="Colors list cannot be empty"):
         ColorRanges(mock_strip, colors=[])
-
-
-def test_color_ranges_validation_empty_ranges():
-    """Test that empty ranges list raises ValueError"""
-    mock_strip = MagicMock()
-    mock_strip.__len__.return_value = 30
-
-    with pytest.raises(ValueError, match="Ranges list cannot be empty"):
-        ColorRanges(mock_strip, ranges=[])
 
 
 def test_color_ranges_validation_invalid_color_format():
@@ -105,49 +84,52 @@ def test_color_ranges_validation_invalid_color_values():
         ColorRanges(mock_strip, colors=[(255.5, 0, 0)])
 
 
-def test_color_ranges_validation_ranges_not_starting_at_zero():
-    """Test that ranges not starting at 0% raise ValueError"""
+def test_color_ranges_validation_wrong_number_of_ranges():
+    """Test that wrong number of boundary ranges raises ValueError"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    with pytest.raises(ValueError, match="First range must start at 0%"):
-        ColorRanges(mock_strip, ranges=[(10, 100, (255, 0, 0))])
+    # 3 colors need 2 boundaries, but providing 3
+    with pytest.raises(ValueError, match="must have 2 elements"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)], ranges=[30, 60, 80])
+
+    # 3 colors need 2 boundaries, but providing 1
+    with pytest.raises(ValueError, match="must have 2 elements"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)], ranges=[50])
 
 
-def test_color_ranges_validation_ranges_not_ending_at_hundred():
-    """Test that ranges not ending at 100% raise ValueError"""
+def test_color_ranges_validation_boundary_out_of_range():
+    """Test that boundaries outside 0-100 range raise ValueError"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    with pytest.raises(ValueError, match="Last range must end at 100%"):
-        ColorRanges(mock_strip, ranges=[(0, 90, (255, 0, 0))])
+    # Boundary at 0 is invalid (must be > 0)
+    with pytest.raises(ValueError, match="must be between 0 and 100"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0)], ranges=[0])
+
+    # Boundary at 100 is invalid (must be < 100)
+    with pytest.raises(ValueError, match="must be between 0 and 100"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0)], ranges=[100])
+
+    # Boundary > 100
+    with pytest.raises(ValueError, match="must be between 0 and 100"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0)], ranges=[150])
 
 
-def test_color_ranges_validation_ranges_with_gaps():
-    """Test that ranges with gaps raise ValueError"""
+def test_color_ranges_validation_boundaries_not_ascending():
+    """Test that boundaries not in ascending order raise ValueError"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    with pytest.raises(ValueError, match="Gap detected"):
-        ColorRanges(mock_strip, ranges=[
-            (0, 40, (255, 0, 0)),
-            (50, 100, (0, 0, 255))  # Gap from 40 to 50
-        ])
+    with pytest.raises(ValueError, match="must be in ascending order"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)], ranges=[60, 40])
+
+    # Equal boundaries also invalid
+    with pytest.raises(ValueError, match="must be in ascending order"):
+        ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)], ranges=[50, 50])
 
 
-def test_color_ranges_validation_ranges_with_overlaps():
-    """Test that ranges with overlaps raise ValueError"""
-    mock_strip = MagicMock()
-    mock_strip.__len__.return_value = 30
-
-    with pytest.raises(ValueError, match="Overlap detected"):
-        ColorRanges(mock_strip, ranges=[
-            (0, 60, (255, 0, 0)),
-            (50, 100, (0, 0, 255))  # Overlap from 50 to 60
-        ])
-
-
-def test_color_ranges_two_colors():
+def test_color_ranges_two_colors_equal():
     """Test 50-50 split with two colors"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 10
@@ -163,7 +145,24 @@ def test_color_ranges_two_colors():
         assert color_ranges.target_colors[i] == (0, 0, 255), f"LED {i} should be blue"
 
 
-def test_color_ranges_three_colors():
+def test_color_ranges_two_colors_custom():
+    """Test custom split with two colors using boundary"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 10
+
+    # 70% red, 30% blue (boundary at 70%)
+    color_ranges = ColorRanges(mock_strip, colors=[(255, 0, 0), (0, 0, 255)], ranges=[70])
+
+    # First 7 LEDs should be red (0-70%)
+    for i in range(7):
+        assert color_ranges.target_colors[i] == (255, 0, 0), f"LED {i} should be red"
+
+    # Last 3 LEDs should be blue (70-100%)
+    for i in range(7, 10):
+        assert color_ranges.target_colors[i] == (0, 0, 255), f"LED {i} should be blue"
+
+
+def test_color_ranges_three_colors_equal():
     """Test 33-33-33 split with three colors (flag use case)"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
@@ -186,17 +185,17 @@ def test_color_ranges_three_colors():
         assert color_ranges.target_colors[i] == (0, 0, 255), f"LED {i} should be blue"
 
 
-def test_color_ranges_custom_percentages():
-    """Test unequal distribution with custom percentages"""
+def test_color_ranges_three_colors_custom():
+    """Test unequal distribution with custom boundary percentages"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 10
 
-    # 30% red, 40% white, 30% blue
-    color_ranges = ColorRanges(mock_strip, ranges=[
-        (0, 30, (255, 0, 0)),
-        (30, 70, (255, 255, 255)),
-        (70, 100, (0, 0, 255))
-    ])
+    # 30% red, 40% white, 30% blue (boundaries at 30% and 70%)
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)],
+        ranges=[30, 70]
+    )
 
     # First 3 LEDs should be red (0-30%)
     for i in range(3):
@@ -338,11 +337,12 @@ def test_color_ranges_percentage_edge_cases():
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 20
 
-    # Create ranges with very specific boundaries
-    color_ranges = ColorRanges(mock_strip, ranges=[
-        (0, 50, (255, 0, 0)),
-        (50, 100, (0, 0, 255))
-    ])
+    # Create ranges with boundary at 50%
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (0, 0, 255)],
+        ranges=[50]
+    )
 
     # First LED (0%) should be first color
     assert color_ranges.target_colors[0] == (255, 0, 0)
@@ -350,7 +350,6 @@ def test_color_ranges_percentage_edge_cases():
     # Last LED should be second color
     assert color_ranges.target_colors[19] == (0, 0, 255)
 
-    # Middle should split correctly
     # LED at index 10 = 10/20 * 100 = 50%, should be in second range
     assert color_ranges.target_colors[10] == (0, 0, 255)
 
@@ -374,8 +373,8 @@ def test_color_ranges_various_strip_lengths():
             assert color in [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 
 
-def test_color_ranges_colors_to_ranges_conversion():
-    """Test internal conversion of colors list to ranges"""
+def test_color_ranges_build_equal_ranges():
+    """Test internal equal ranges building"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
@@ -398,21 +397,67 @@ def test_color_ranges_colors_to_ranges_conversion():
     assert color_ranges.ranges[1][2] == (0, 255, 0)
 
 
+def test_color_ranges_build_custom_ranges():
+    """Test internal custom ranges building from boundaries"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 30
+
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (255, 255, 255), (0, 0, 255)],
+        ranges=[40, 60]
+    )
+
+    # Should have created 3 ranges
+    assert len(color_ranges.ranges) == 3
+
+    # First range: 0-40%
+    assert color_ranges.ranges[0] == (0.0, 40, (255, 0, 0))
+
+    # Second range: 40-60%
+    assert color_ranges.ranges[1] == (40, 60, (255, 255, 255))
+
+    # Third range: 60-100%
+    assert color_ranges.ranges[2] == (60, 100.0, (0, 0, 255))
+
+
 def test_color_ranges_flag_examples():
     """Test real-world flag examples"""
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    # German flag: black, red, gold
+    # German flag: black, red, gold (equal thirds)
     german = ColorRanges(mock_strip, colors=[(0, 0, 0), (255, 0, 0), (255, 215, 0)])
     assert len(german.target_colors) == 30
     assert german.target_colors[0] == (0, 0, 0)  # Black
     assert german.target_colors[15] == (255, 0, 0)  # Red
     assert german.target_colors[29] == (255, 215, 0)  # Gold
 
-    # French flag: blue, white, red
+    # French flag: blue, white, red (equal thirds)
     french = ColorRanges(mock_strip, colors=[(0, 85, 164), (255, 255, 255), (239, 65, 53)])
     assert len(french.target_colors) == 30
     assert french.target_colors[0] == (0, 85, 164)  # Blue
     assert french.target_colors[15] == (255, 255, 255)  # White
     assert french.target_colors[29] == (239, 65, 53)  # Red
+
+
+def test_color_ranges_empty_ranges_list():
+    """Test that empty ranges list is treated as equal distribution"""
+    mock_strip = MagicMock()
+    mock_strip.__len__.return_value = 30
+
+    color_ranges = ColorRanges(
+        mock_strip,
+        colors=[(255, 0, 0), (0, 255, 0), (0, 0, 255)],
+        ranges=[]  # Empty list
+    )
+
+    # Should behave same as no ranges parameter (equal distribution)
+    assert len(color_ranges.ranges) == 3
+    # First 10 LEDs should be red
+    assert color_ranges.target_colors[0] == (255, 0, 0)
+    assert color_ranges.target_colors[9] == (255, 0, 0)
+    # Middle 10 should be green
+    assert color_ranges.target_colors[15] == (0, 255, 0)
+    # Last 10 should be blue
+    assert color_ranges.target_colors[29] == (0, 0, 255)
