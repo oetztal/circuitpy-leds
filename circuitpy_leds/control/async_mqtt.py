@@ -133,7 +133,7 @@ class AsyncMQTTControl:
             print("MQTT connected successfully")
 
             # Subscribe to all command topics
-            command_base = f"{self.config.mqtt_prefix}/led/command/#"
+            command_base = f"ledstrip/{self.config.mqtt_prefix}/command/#"
             client.subscribe(command_base)
             print(f"Subscribed to {command_base}")
 
@@ -414,7 +414,7 @@ class AsyncMQTTControl:
             }
 
             status_json = json.dumps(status)
-            status_topic = f"{self.config.mqtt_prefix}/led/status/state"
+            status_topic = f"ledstrip/{self.config.mqtt_prefix}/status/state"
 
             self.mqtt_client.publish(status_topic, status_json)
             print(f"Published status: {status_json}")
