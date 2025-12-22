@@ -1,5 +1,10 @@
 import pytest
-from mock import patch
+import sys
+from mock import patch, MagicMock
+
+
+# Mock board module for non-CircuitPython environments
+sys.modules['board'] = MagicMock()
 
 
 @pytest.fixture

@@ -58,12 +58,12 @@ def test_color_ranges_validation_invalid_color_format():
     mock_strip = MagicMock()
     mock_strip.__len__.return_value = 30
 
-    # Not a tuple
-    with pytest.raises(ValueError, match="Color must be RGB tuple"):
-        ColorRanges(mock_strip, colors=[[255, 0, 0]])
+    # Not a tuple or list (string instead)
+    with pytest.raises(ValueError, match="Color must be RGB tuple/list"):
+        ColorRanges(mock_strip, colors=["#ff0000"])
 
-    # Wrong tuple length
-    with pytest.raises(ValueError, match="Color must be RGB tuple"):
+    # Wrong tuple/list length
+    with pytest.raises(ValueError, match="Color must be RGB tuple/list"):
         ColorRanges(mock_strip, colors=[(255, 0)])
 
 

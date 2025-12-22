@@ -122,3 +122,10 @@ def wheel(wheel_pos: float):
 
     return color
 
+
+def validate_color(color: list[int] | tuple) -> tuple:
+    if isinstance(color, list):
+        color = tuple(color)
+    if len(color) != 3:
+        raise ValueError("Color must contain three values")
+    return color
