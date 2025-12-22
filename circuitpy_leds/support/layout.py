@@ -10,8 +10,7 @@ class Layout(Strip):
         self.mirror = mirror
         self.reverse = reverse
 
-        # Clear dead LEDs (turn them off)
-        self._clear_dead_leds()
+        self._turn_off_dead_leds()
 
     def __len__(self):
         return int((len(self.strip) - abs(self.dead)) / (2 if self.mirror else 1))
@@ -28,8 +27,12 @@ class Layout(Strip):
     def real_index(self, index: int | slice) -> int | slice:
         if not 0 <= index < len(self):
             raise IndexError("Index out of range")
-        if self.dead < 0:
-            index += -self.dead
+        if not self.mirror:
+            if self.dead > 0:
+                index += self.dead
+        else:
+            if self.dead < 0:
+                index += int(-self.dead / 2)
         if self.reverse:
             index = len(self) - index - 1
         return index
@@ -40,7 +43,7 @@ class Layout(Strip):
     def show(self):
         self.strip.show()
 
-    def _clear_dead_leds(self):
+    def _turn_off_dead_leds(self):
         """Clear (turn off) the dead LEDs."""
         if self.dead == 0:
             return
@@ -58,9 +61,12 @@ class Layout(Strip):
                 for i in range(dead_start, dead_end):
                     self.strip[i] = black
             else:
-                # Negative dead with mirror: dead LEDs at the beginning
-                for i in range(abs(self.dead)):
+                # Negative dead with mirror: half the number of dead LEDs at the beginning and at end
+                half_dead = int(abs(self.dead / 2))
+                print(f"half_dead: {half_dead}")
+                for i in range(half_dead):
                     self.strip[i] = black
+                    self.strip[len(self)-i] = black
         else:
             # For non-mirrored layouts
             if self.dead > 0:
