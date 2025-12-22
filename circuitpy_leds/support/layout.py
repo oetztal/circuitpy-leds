@@ -63,7 +63,6 @@ class Layout(Strip):
             else:
                 # Negative dead with mirror: half the number of dead LEDs at the beginning and at end
                 half_dead = int(abs(self.dead / 2))
-                print(f"half_dead: {half_dead}")
                 for i in range(half_dead):
                     self.strip[i] = black
                     self.strip[len(self)-i] = black

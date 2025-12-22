@@ -384,10 +384,9 @@ class AsyncMQTTControl:
         """
         Periodically publish status to MQTT.
         """
-        mqtt_status_interval = 30 # self.config.mqtt_status_interval
+        mqtt_status_interval = self.config.mqtt_status_interval
         while self.running:
             try:
-                print(self.config)
                 await asyncio.sleep(mqtt_status_interval)
 
                 if self.connected:

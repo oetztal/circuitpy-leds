@@ -20,6 +20,10 @@ class APA102(Strip):
         self.led_colors = [(0.0, 0.0, 0.0)] * self.num_leds
         self.leds = [self.led_prefix(self._global_brightness), 0, 0, 0] * self.num_leds  # 4 bytes per LED
 
+    @property
+    def brightness(self) -> float:
+        return self._global_brightness
+
     @classmethod
     def led_prefix(cls, brightness: float) -> int:
         """
