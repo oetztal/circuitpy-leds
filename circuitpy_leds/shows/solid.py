@@ -2,15 +2,15 @@ import asyncio
 
 from .. import Strip
 from ..support.blend import SmoothBlend
+from ..support.color import validate_color
 
 
 class Solid:
 
-    def __init__(self, strip: Strip, color: tuple):
+    def __init__(self, strip: Strip, color: list[int] | tuple = (255, 255, 255)):
         self.strip = strip
-        self.color = color
+        self.color = validate_color(color)
         self.blend = None
-
 
     async def execute(self, _):
         if self.blend is None:

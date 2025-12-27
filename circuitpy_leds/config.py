@@ -39,7 +39,27 @@ class Config:
 
     @property
     def mqtt_prefix(self) -> str:
-        return os.getenv("MQTT_PREFIX", "sensors")
+        return os.getenv("MQTT_PREFIX", "ledstrip")
+
+    @property
+    def mqtt_status_interval(self) -> int:
+        """Interval in seconds between status publications"""
+        return int(os.getenv("MQTT_STATUS_INTERVAL", "30"))
+
+    @property
+    def mqtt_reconnect_delay(self) -> int:
+        """Initial delay in seconds before reconnecting after connection failure"""
+        return int(os.getenv("MQTT_RECONNECT_DELAY", "5"))
+
+    @property
+    def mqtt_command_topic(self) -> str:
+        """Base topic for receiving commands"""
+        return f"{self.mqtt_prefix}/led/command"
+
+    @property
+    def mqtt_status_topic(self) -> str:
+        """Base topic for publishing status"""
+        return f"{self.mqtt_prefix}/led/status"
 
     @property
     def output_pin(self) -> board.Pin | None:
