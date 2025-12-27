@@ -52,9 +52,9 @@ def create_layouts(dead_leds: int):
         lambda pixels: Layout(pixels, 0, False, True),
         lambda pixels: Layout(pixels, 0, True),
         lambda pixels: Layout(pixels, 0, True, True),
-        lambda pixels: Layout(pixels, dead_leds),
+        lambda pixels: Layout(pixels, dead_leds, False),
+        lambda pixels: Layout(pixels, dead_leds, False, True),
         lambda pixels: Layout(pixels, dead_leds, True),
-        lambda pixels: Layout(pixels, dead_leds, reverse=True),
         lambda pixels: Layout(pixels, dead_leds, True, True),
     ]
 

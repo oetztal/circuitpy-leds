@@ -189,6 +189,9 @@ class TestMirroredLayoutWithNegativeDeadLEDs:
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
 
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout mirror, dead=-80>"
+
 
 class TestPlainLayoutWithDeadLEDs:
     @pytest.fixture
