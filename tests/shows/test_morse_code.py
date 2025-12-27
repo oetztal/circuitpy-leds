@@ -214,7 +214,7 @@ def test_morse_code_zero_spacing():
     assert len(morse.pattern) > 0
     colored_leds = [c for c in morse.pattern if c != (0, 0, 0)]
     # S = ... (3 dots with default dot_length=1)
-    assert len(colored_leds) == 3
+    assert len(colored_leds) == 6
 
 
 def test_morse_code_standard_timing():

@@ -36,3 +36,20 @@ class Layout(Strip):
 
     def show(self):
         self.strip.show()
+
+    def __repr__(self):
+        state = []
+
+        if self.mirror:
+            state.append("mirror")
+
+        if self.reverse:
+            state.append("reverse")
+
+        if self.dead:
+            state.append(f"dead={self.dead}")
+
+        if not state:
+            state.append("default")
+        return f"<Layout {', '.join(state)}>"
+

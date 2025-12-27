@@ -22,6 +22,10 @@ class Config:
         return int(os.getenv("MQTT_PORT", "1883"))
 
     @property
+    def touch_threshold(self) -> int:
+        return int(os.getenv("TOUCH_THRESHOLD", "14000"))
+
+    @property
     def mqtt_client_id(self) -> str | None:
         return os.getenv("MQTT_CLIENT_ID")
 
