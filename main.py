@@ -6,6 +6,7 @@ from circuitpy_leds.config import Config
 from circuitpy_leds.control import Control
 from circuitpy_leds.control.touch import control_touch
 
+
 async def run_effect(control: Control):
     index = 0
     while True:
@@ -30,12 +31,23 @@ async def main():
     # Add MQTT control if configured
     if config.mqtt_host:
         print(f"MQTT enabled - connecting to {config.mqtt_host}")
-        from circuitpy_leds.control.async_mqtt import AsyncMQTTControl
 
-        mqtt_control = AsyncMQTTControl(control, pixels, config)
-        tasks.append(asyncio.create_task(mqtt_control.run()))
+        from circuitpy_leds.circuitpy.wifi import wifi_connect
+        socket_pool = wifi_connect(config)
+        print("WiFi connected")
+
+        from circuitpy_leds.circuitpy.mqtt import MQTTClient
+        mqtt = MQTTClient(socket_pool, config)
+        mqtt.connect()
+        mqtt.subscribe(config.mqtt_prefix)
+
+        from circuitpy_leds.control.mqtt import control_mqtt
+        control_task = asyncio.create_task(control_mqtt(control, mqtt, config, pixels))
     else:
+        control_task = asyncio.create_task(control_touch(control, config, pixels))
         print("MQTT disabled - no MQTT_HOST configured")
+
+    tasks.append(control_task)
 
     await asyncio.gather(*tasks)
 

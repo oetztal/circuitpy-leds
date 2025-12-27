@@ -4,7 +4,7 @@ import json
 from neopixel import NeoPixel
 
 from ..config import Config
-from circuitpy.mqtt import MQTTClient
+from ..circuitpy.mqtt import MQTTClient
 from . import Control
 from ..shows import SHOW_MAP
 
