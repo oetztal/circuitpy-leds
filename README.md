@@ -1,3 +1,8 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=oetztal_circuitpy-leds&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=oetztal_circuitpy-leds)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=oetztal_circuitpy-leds&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=oetztal_circuitpy-leds)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=oetztal_circuitpy-leds&metric=coverage)](https://sonarcloud.io/summary/new_code?id=oetztal_circuitpy-leds)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=oetztal_circuitpy-leds&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=oetztal_circuitpy-leds)
+
 # circuitpy-leds
 
 Control a LED strip using CircuitPython
