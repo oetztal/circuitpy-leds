@@ -18,4 +18,4 @@ class Solid:
 
         self.blend.step()
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.05)

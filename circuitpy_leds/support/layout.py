@@ -77,3 +77,20 @@ class Layout(Strip):
                 # Dead LEDs at the beginning of the strip (negative dead)
                 for i in range(abs(self.dead)):
                     self.strip[i] = black
+
+    def __repr__(self):
+        state = []
+
+        if self.mirror:
+            state.append("mirror")
+
+        if self.reverse:
+            state.append("reverse")
+
+        if self.dead:
+            state.append(f"dead={self.dead}")
+
+        if not state:
+            state.append("default")
+        return f"<Layout {', '.join(state)}>"
+

@@ -6,6 +6,14 @@ import board
 class Config:
 
     @property
+    def brightness(self) -> float | None:
+        return float(os.getenv("BRIGHTNESS", "0.1"))
+
+    @property
+    def dead_leds(self) -> int | None:
+        return int(os.getenv("DEAD_LEDS", "100"))
+
+    @property
     def wifi_ssid(self) -> str | None:
         return os.getenv("WIFI_SSID")
 
@@ -20,6 +28,10 @@ class Config:
     @property
     def mqtt_port(self) -> int:
         return int(os.getenv("MQTT_PORT", "1883"))
+
+    @property
+    def touch_threshold(self) -> int:
+        return int(os.getenv("TOUCH_THRESHOLD", "14000"))
 
     @property
     def mqtt_client_id(self) -> str | None:

@@ -8,42 +8,48 @@ from circuitpy_leds.support.layout import Layout
 
 class TestPlainLayout:
     @pytest.fixture
-    def plain_layout(self, mock_strip):
+    def layout(self, mock_strip):
         mock_strip.__len__.return_value = 300
         return Layout(mock_strip, 0, False)
 
-    def test_length(self, mock_strip, plain_layout):
-        assert len(plain_layout) == 300
+    def test_length(self, mock_strip, layout):
+        assert len(layout) == 300
 
-    def test_setitem(self, mock_strip, plain_layout):
-        plain_layout[20] = (255, 0, 0)
+    def test_setitem(self, mock_strip, layout):
+        layout[20] = (255, 0, 0)
 
         mock_strip.__setitem__.assert_called_once_with(20, (255, 0, 0))
 
     @pytest.mark.parametrize('index', (-1, 300))
-    def test_setitem_index_error(self, mock_strip, plain_layout, index):
+    def test_setitem_index_error(self, mock_strip, layout, index):
         with pytest.raises(IndexError):
-            plain_layout[index] = (255, 0, 0)
+            layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout default>"
 
 
 class TestReversedPlainLayout:
     @pytest.fixture
-    def plain_layout(self, mock_strip):
+    def layout(self, mock_strip):
         mock_strip.__len__.return_value = 300
         return Layout(mock_strip, 0, False, True)
 
-    def test_length(self, mock_strip, plain_layout):
-        assert len(plain_layout) == 300
+    def test_length(self, mock_strip, layout):
+        assert len(layout) == 300
 
-    def test_setitem(self, mock_strip, plain_layout):
-        plain_layout[20] = (255, 0, 0)
+    def test_setitem(self, mock_strip, layout):
+        layout[20] = (255, 0, 0)
 
         mock_strip.__setitem__.assert_called_once_with(279, (255, 0, 0))
 
     @pytest.mark.parametrize('index', (-1, 300))
-    def test_setitem_index_error(self, mock_strip, plain_layout, index):
+    def test_setitem_index_error(self, mock_strip, layout, index):
         with pytest.raises(IndexError):
-            plain_layout[index] = (255, 0, 0)
+            layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout reverse>"
 
 
 class TestMirroredLayout:
@@ -73,6 +79,9 @@ class TestMirroredLayout:
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
 
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout mirror>"
+
 
 class TestMirroredReversedLayout:
     @pytest.fixture
@@ -100,6 +109,9 @@ class TestMirroredReversedLayout:
     def test_setitem_index_error(self, mock_strip, layout, index):
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout mirror, reverse>"
 
 
 class TestMirroredLayoutWithDeadLEDs:
@@ -136,6 +148,9 @@ class TestMirroredLayoutWithDeadLEDs:
     def test_setitem_index_error(self, mock_strip, layout, index):
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout mirror, dead=80>"
 
 
 class TestMirroredLayoutWithNegativeDeadLEDs:
@@ -202,6 +217,10 @@ class TestPlainLayoutWithDeadLEDs:
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
 
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout dead=80>"
+
+
 
 class TestPlainLayoutWithNegativeDeadLEDs:
     @pytest.fixture
@@ -230,3 +249,7 @@ class TestPlainLayoutWithNegativeDeadLEDs:
     def test_index_error(self, layout, index):
         with pytest.raises(IndexError):
             layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout dead=-80>"
+

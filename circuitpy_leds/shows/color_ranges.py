@@ -1,5 +1,4 @@
 import asyncio
-import math
 
 from .. import Strip
 from ..support.blend import SmoothBlend
@@ -176,7 +175,7 @@ class ColorRanges:
             end_idx = int((end_pct / 100.0) * self.num_leds)
 
             # Handle the last range specially to ensure it includes the final LED
-            if math.isclose(end_pct, 100.0, rel_tol=1e-06, abs_tol=1e-06):
+            if self.is_close(end_pct, 100.0, rel_tol=1e-06, abs_tol=1e-06):
                 end_idx = self.num_leds
 
             # Assign this color to all LEDs in this range
@@ -184,6 +183,10 @@ class ColorRanges:
                 led_colors[led_idx] = color
 
         return led_colors
+
+    @staticmethod
+    def is_close(value, target, rel_tol=1e-09, abs_tol=0.0):
+        return abs(value-target) <= max(rel_tol * max(abs(value), abs(target)), abs_tol)
 
     async def execute(self, _):
         """
