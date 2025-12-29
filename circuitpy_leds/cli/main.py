@@ -13,7 +13,6 @@ async def run_effect(control: Control):
 
 async def async_main(config):
     strip = APA102(config)
-    # strip = Layout(strip, 102, True)
     sides = Layout(strip, 102, True)
 
     control = Control(strip)
