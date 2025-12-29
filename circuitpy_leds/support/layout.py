@@ -85,35 +85,73 @@ class Layout(Strip):
         if self.dead == 0:
             return
 
-        black = (0, 0, 0)
-
         if self.mirror:
-            # For mirrored layouts, dead LEDs are in the middle
-            if self.dead > 0:
-                # Dead LEDs in the middle between mirrored sections
-                # Left side: 0 to (len(self)-1), Dead middle, Right side (mirrored)
-                left_side_end = len(self)
-                dead_start = left_side_end
-                dead_end = dead_start + self.dead
-                for i in range(dead_start, dead_end):
-                    self.strip[i] = black
-            else:
-                # Negative dead with mirror: half the number of dead LEDs at the beginning and at end
-                half_dead = int(abs(self.dead / 2))
-                for i in range(half_dead):
-                    self.strip[i] = black
-                    self.strip[len(self)-i] = black
+            self._turn_off_mirrored_dead_leds()
         else:
-            # For non-mirrored layouts
-            if self.dead > 0:
-                # Dead LEDs at the beginning of the strip
-                for i in range(abs(self.dead)):
-                    self.strip[i] = black
-            else:
-                # Dead LEDs at the end of the strip
-                start = len(self.strip) - self.dead
-                for i in range(start, len(self.strip)):
-                    self.strip[i] = black
+            self._turn_off_plain_dead_leds()
+
+    def _turn_off_mirrored_dead_leds(self):
+        """Turn off dead LEDs for mirrored layout configurations."""
+        if self.dead > 0:
+            self._turn_off_middle_leds()
+        else:
+            self._turn_off_edge_leds()
+
+    def _turn_off_plain_dead_leds(self):
+        """Turn off dead LEDs for non-mirrored layout configurations."""
+        if self.dead > 0:
+            self._turn_off_beginning_leds()
+        else:
+            self._turn_off_end_leds()
+
+    def _turn_off_middle_leds(self):
+        """
+        Turn off LEDs in the middle (positive dead, mirrored).
+
+        Layout: 0**p----p**0
+        Dead LEDs are in the center between mirrored sections.
+        """
+        left_side_end = len(self)
+        dead_start = left_side_end
+        dead_end = dead_start + self.dead
+        self._set_range_to_black(dead_start, dead_end)
+
+    def _turn_off_edge_leds(self):
+        """
+        Turn off LEDs at both edges (negative dead, mirrored).
+
+        Layout: --0**pp**0--
+        Half the dead LEDs at beginning, half at end.
+        """
+        half_dead = int(abs(self.dead / 2))
+        for i in range(half_dead):
+            self.strip[i] = (0, 0, 0)
+            self.strip[len(self) - i] = (0, 0, 0)
+
+    def _turn_off_beginning_leds(self):
+        """
+        Turn off LEDs at the beginning (positive dead, non-mirrored).
+
+        Layout: ---0******o
+        Dead LEDs are at the start of the strip.
+        """
+        self._set_range_to_black(0, abs(self.dead))
+
+    def _turn_off_end_leds(self):
+        """
+        Turn off LEDs at the end (negative dead, non-mirrored).
+
+        Layout: 0******o---
+        Dead LEDs are at the end of the strip.
+        """
+        start = len(self.strip) + self.dead  # dead is negative
+        self._set_range_to_black(start, len(self.strip))
+
+    def _set_range_to_black(self, start, end):
+        """Set a range of LEDs to black (off)."""
+        black = (0, 0, 0)
+        for i in range(start, end):
+            self.strip[i] = black
 
     def __repr__(self):
         state = []
