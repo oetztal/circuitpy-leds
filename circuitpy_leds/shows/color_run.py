@@ -5,6 +5,14 @@ from circuitpy_leds import Strip
 
 
 class ColorRun:
+    """
+    Random colored dots racing across the strip at varying speeds.
+
+    Randomly spawns colored dots that travel along the strip at different
+    speeds, creating a dynamic chase effect with multiple simultaneous runners.
+
+    :param strip: The LED strip to control
+    """
 
     def __init__(self, strip: Strip):
         self.strip = strip
@@ -15,6 +23,13 @@ class ColorRun:
         self.state = []
 
     async def execute(self, index):
+        """
+        Execute one step of the color run animation.
+
+        Randomly spawns new colored dots and updates positions of existing ones.
+
+        :param index: Current animation step for timing
+        """
 
         if random.randint(0, 100) > 95:
             color = random.choice(self.phases)

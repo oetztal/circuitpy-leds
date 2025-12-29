@@ -6,6 +6,17 @@ from ..support.color import linear_dim, add_tuples
 
 
 class TwoColorBlend:
+    """
+    Smooth gradient blend between two colors across the LED strip.
+
+    Creates a linear gradient from one color at the start of the strip to
+    another color at the end, with smooth color transitions in between.
+    Uses smooth blending for fade-in from current state.
+
+    :param strip: The LED strip to control
+    :param color1: RGB color tuple for the start of the strip (0-255)
+    :param color2: RGB color tuple for the end of the strip (0-255)
+    """
 
     def __init__(self, strip: Strip, color1, color2):
         self.strip = strip
@@ -15,6 +26,13 @@ class TwoColorBlend:
         self.blend = None
 
     async def execute(self, index):
+        """
+        Execute one step of the two-color blend animation.
+
+        Initializes the gradient on first call, then steps through the transition.
+
+        :param index: Current animation step (unused)
+        """
         if self.blend is None:
             target_colors = []
             for led in range(self.num_leds):

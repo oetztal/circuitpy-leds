@@ -7,6 +7,17 @@ from ..support.color import wheel
 
 
 class TheaterChase:
+    """
+    Classic theater marquee chase pattern with rotating rainbow colors.
+
+    Creates a chase pattern where 5 out of every 7 LEDs are lit, moving
+    along the strip. The color cycles through the rainbow spectrum as the
+    pattern moves, reminiscent of theater marquee lights.
+
+    :param strip: The LED strip to control
+    :param num_steps_per_cycle: Number of steps to complete one color cycle.
+                                Must be a multiple of 7 for smooth transitions.
+    """
 
     def __init__(self, strip: Strip, num_steps_per_cycle=21):
         print(f"TheaterChase initialized {num_steps_per_cycle}")
@@ -16,6 +27,13 @@ class TheaterChase:
         self.state = []
 
     async def execute(self, index):
+        """
+        Execute one step of the theater chase animation.
+
+        Advances the chase pattern by one position and cycles the color.
+
+        :param index: Current animation step for pattern position and color
+        """
         # One cycle = One trip through the color wheel, 0..254
         # Few cycles = quick transition, lots of cycles = slow transition
         # Note: For a smooth transition between cycles, numStepsPerCycle must be a multiple of 7

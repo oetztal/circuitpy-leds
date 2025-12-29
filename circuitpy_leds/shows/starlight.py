@@ -7,6 +7,17 @@ from ..support import probability_of
 
 
 class Starlight:
+    """
+    Twinkling stars effect with random LED activations that fade in and out.
+
+    Simulates a starry night sky by randomly activating LEDs with a warm white
+    color that smoothly fades in, holds at full brightness, then fades out.
+
+    :param strip: The LED strip to control
+    :param probability: Probability of spawning a new star each frame (0.0-1.0)
+    :param length: Duration in seconds the star stays at full brightness
+    :param fade: Duration in seconds for fade in/out transitions
+    """
 
     def __init__(self, strip: Strip, probability: float = 0.1, length: float = 5, fade: float = 1):
         self.strip = strip
@@ -18,6 +29,14 @@ class Starlight:
         self.fade = fade
 
     async def execute(self, index: int):
+        """
+        Execute one step of the starlight animation.
+
+        Updates active stars' brightness based on their fade state and
+        randomly spawns new stars.
+
+        :param index: Current animation step (unused, uses real time)
+        """
         now = time.monotonic()
 
         if probability_of(self.probability):
