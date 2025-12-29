@@ -32,11 +32,10 @@ class Layout(Strip):
 
     p = (<number of leds> - abs(<dead leds>)) / 2 - 1
 
-    dead > 0, mirrored:          0**p----p**0 TESTED
-    dead > 0, mirrored, reverse: p**0----0**p TESTED
-    dead < 0, mirrored:          --0**pp**0-- TESTED
-    dead < 0, mirrored, reverse: --p**00**p-- TESTED
-
+    dead > 0, mirrored:          0**p----p**0
+    dead > 0, mirrored, reverse: p**0----0**p
+    dead < 0, mirrored:          --0**pp**0--
+    dead < 0, mirrored, reverse: --p**00**p--
 
     """
 
