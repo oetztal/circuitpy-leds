@@ -63,14 +63,16 @@ class Layout(Strip):
     def real_index(self, index: int | slice) -> int | slice:
         if not 0 <= index < len(self):
             raise IndexError("Index out of range")
+        # Apply reverse first (within logical layout space)
+        if self.reverse:
+            index = len(self) - index - 1
+        # Then apply dead LED offset to get physical strip index
         if not self.mirror:
             if self.dead > 0:
                 index += self.dead
         else:
             if self.dead < 0:
                 index += int(-self.dead / 2)
-        if self.reverse:
-            index = len(self) - index - 1
         return index
 
     def fill(self, color):
