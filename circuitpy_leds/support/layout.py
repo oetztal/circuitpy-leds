@@ -3,6 +3,42 @@
 from circuitpy_leds import Strip
 
 class Layout(Strip):
+    """
+
+    ## plain
+
+    n = <number of leds> - 1
+
+    plain:   0**********n
+    reverse: n**********0
+
+    ## mirrored
+
+    mirrored:          0****mm****0
+    mirrored, reverse: m****00****m
+
+    m = (<number of leds> / 2) - 1
+    
+    ## using dead LEDs
+
+    o = <number of leds> - 1 - <dead leds>
+
+    dead > 0:          ---0******o
+    dead > 0, reverse: ---o******0
+    dead < 0:          0******o---
+    dead < 0, reverse: 0******o---
+
+    ### mirrored
+
+    p = (<number of leds> - abs(<dead leds>)) / 2 - 1
+
+    dead > 0, mirrored:          0**p----p**0
+    dead > 0, mirrored, reverse: p**0----0**p
+    dead < 0, mirrored:          --0**pp**0--
+    dead < 0, mirrored, reverse: --p**00**p--
+
+
+    """
 
     def __init__(self, pixels: Strip, dead=102, mirror=True, reverse=False):
         self.strip = pixels
@@ -69,13 +105,13 @@ class Layout(Strip):
         else:
             # For non-mirrored layouts
             if self.dead > 0:
+                # Dead LEDs at the beginning of the strip
+                for i in range(abs(self.dead)):
+                    self.strip[i] = black
+            else:
                 # Dead LEDs at the end of the strip
                 start = len(self.strip) - self.dead
                 for i in range(start, len(self.strip)):
-                    self.strip[i] = black
-            else:
-                # Dead LEDs at the beginning of the strip (negative dead)
-                for i in range(abs(self.dead)):
                     self.strip[i] = black
 
     def __repr__(self):

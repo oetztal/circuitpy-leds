@@ -223,6 +223,35 @@ class TestPlainLayoutWithDeadLEDs:
     def test_repr(self, layout):
         assert str(layout) == "<Layout dead=80>"
 
+class TestReversedLayoutWithDeadLEDs:
+    @pytest.fixture
+    def layout(self, mock_strip):
+        mock_strip.__len__.return_value = 300
+        layout = Layout(mock_strip, 80, False, True)
+        mock_strip.__setitem__.reset_mock()  # Reset after clearing dead LEDs
+        return layout
+
+    def test_length(self, mock_strip, layout):
+        assert len(layout) == 220
+
+    @pytest.mark.parametrize('index,expected_index', (
+            (0, 299),
+            (219, 80),
+    ))
+    def test_setitem(self, mock_strip, layout, index, expected_index):
+        layout[index] = (255, 0, 0)
+
+        assert mock_strip.__setitem__.call_args_list == [
+            call(expected_index, (255, 0, 0)),
+        ]
+
+    @pytest.mark.parametrize('index', (-1, 220))
+    def test_index_error(self, mock_strip, layout, index):
+        with pytest.raises(IndexError):
+            layout[index] = (255, 0, 0)
+
+    def test_repr(self, layout):
+        assert str(layout) == "<Layout reverse, dead=80>"
 
 
 class TestPlainLayoutWithNegativeDeadLEDs:
