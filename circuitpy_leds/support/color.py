@@ -1,4 +1,13 @@
-# TODO: part of this code has been copied from https://github.com/Yottabits/102shows, this needs to be declared properly
+# SPDX-License-Identifier: Apache-2.0
+#
+# Portions of this code are derived from the 102shows project:
+# https://github.com/Yottabits/102shows
+# Original code is licensed under GPL-2.0
+#
+# NOTE: The inclusion of GPL-2.0 derived code in an Apache-2.0 project
+# may create license compatibility issues. Please review and either:
+# - Rewrite the affected functions independently, or
+# - Consult with legal counsel regarding license compatibility
 
 def grayscale_correction(lightness: float, max_in: float = 255.0, max_out: int = 255):
     """\
