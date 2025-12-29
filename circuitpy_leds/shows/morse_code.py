@@ -83,58 +83,102 @@ class MorseCode:
 
         :return: List of RGB tuples representing the complete scrolling pattern
         """
-        pattern = []
-        words = self.message.split(' ')
-
-        # Filter out empty words (from multiple spaces)
-        words = [w for w in words if w]
-
+        words = self._get_valid_words()
         if not words:
-            return pattern
+            return []
 
-        num_words = len(words)
-
-        # Calculate color spacing for even distribution around color wheel (0-254)
-        color_step = 255 // num_words if num_words > 0 else 0
+        pattern = []
+        colors = self._calculate_word_colors(len(words))
 
         for word_idx, word in enumerate(words):
-            if not word:
-                continue
+            word_pattern = self._encode_word(word, colors[word_idx])
+            pattern.extend(word_pattern)
 
-            # Get color for this word from color wheel
-            color_pos = (word_idx * color_step) % 255
-            color = wheel(color_pos)
-
-            # Encode each letter in the word
-            for letter_idx, char in enumerate(word):
-                morse = MORSE_CODE.get(char, '')
-
-                if morse:
-                    # Add dots and dashes
-                    for symbol_idx, symbol in enumerate(morse):
-                        if symbol == '.':
-                            # Dot = dot_length LEDs
-                            pattern.extend([color] * self.dot_length)
-                        elif symbol == '-':
-                            # Dash = dash_length LEDs
-                            pattern.extend([color] * self.dash_length)
-
-                        # Add space between symbols - except after last symbol
-                        if symbol_idx < len(morse) - 1 and self.symbol_space > 0:
-                            pattern.extend([(0, 0, 0)] * self.symbol_space)
-
-                    # Add space between letters - except after last letter
-                    if letter_idx < len(word) - 1 and self.letter_space > 0:
-                        pattern.extend([(0, 0, 0)] * self.letter_space)
-
-            # Add space between words - except after last word
-            if word_idx < num_words - 1 and self.word_space > 0:
-                pattern.extend([(0, 0, 0)] * self.word_space)
+            if self._should_add_word_space(word_idx, len(words)):
+                pattern.extend(self._create_space(self.word_space))
 
         # Add padding at the end to create a visual gap before looping
-        pattern.extend([(0, 0, 0)] * 10)
+        pattern.extend(self._create_space(10))
 
         return pattern
+
+    def _get_valid_words(self):
+        """Extract and filter non-empty words from the message."""
+        return [word for word in self.message.split(' ') if word]
+
+    def _calculate_word_colors(self, num_words):
+        """Calculate colors for each word distributed around the color wheel."""
+        color_step = 255 // num_words if num_words > 0 else 0
+        return [wheel((idx * color_step) % 255) for idx in range(num_words)]
+
+    def _encode_word(self, word, color):
+        """
+        Encode a single word into LED pattern.
+
+        :param word: Word to encode
+        :param color: RGB color tuple for this word
+        :return: List of RGB tuples for the word
+        """
+        pattern = []
+        for letter_idx, char in enumerate(word):
+            letter_pattern = self._encode_letter(char, color)
+            pattern.extend(letter_pattern)
+
+            if self._should_add_letter_space(letter_idx, len(word)):
+                pattern.extend(self._create_space(self.letter_space))
+
+        return pattern
+
+    def _encode_letter(self, char, color):
+        """
+        Encode a single letter into LED pattern.
+
+        :param char: Character to encode
+        :param color: RGB color tuple for this character
+        :return: List of RGB tuples for the letter
+        """
+        morse = MORSE_CODE.get(char, '')
+        if not morse:
+            return []
+
+        pattern = []
+        for symbol_idx, symbol in enumerate(morse):
+            pattern.extend(self._encode_symbol(symbol, color))
+
+            if self._should_add_symbol_space(symbol_idx, len(morse)):
+                pattern.extend(self._create_space(self.symbol_space))
+
+        return pattern
+
+    def _encode_symbol(self, symbol, color):
+        """
+        Encode a single morse symbol (dot or dash) into LED pattern.
+
+        :param symbol: '.' or '-'
+        :param color: RGB color tuple
+        :return: List of RGB tuples for the symbol
+        """
+        if symbol == '.':
+            return [color] * self.dot_length
+        elif symbol == '-':
+            return [color] * self.dash_length
+        return []
+
+    def _create_space(self, length):
+        """Create a space (black LEDs) of specified length."""
+        return [(0, 0, 0)] * length
+
+    def _should_add_symbol_space(self, current_idx, total):
+        """Check if space should be added after current symbol."""
+        return current_idx < total - 1 and self.symbol_space > 0
+
+    def _should_add_letter_space(self, current_idx, total):
+        """Check if space should be added after current letter."""
+        return current_idx < total - 1 and self.letter_space > 0
+
+    def _should_add_word_space(self, current_idx, total):
+        """Check if space should be added after current word."""
+        return current_idx < total - 1 and self.word_space > 0
 
     async def execute(self, index: int):
         """

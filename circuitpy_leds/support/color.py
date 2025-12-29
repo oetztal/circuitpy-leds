@@ -24,11 +24,11 @@ def grayscale_correction(lightness: float, max_in: float = 255.0, max_out: int =
             :nowrap:
 
             \\begin{align}
-                Y & = Y_{max} \cdot g( ( L^* + 16) /  116 ) \\quad ,& \\quad 0 \\le L^* \\le 100 \\\\
+                Y & = Y_{max} \\cdot g( ( L^* + 16) /  116 ) \\quad ,& \\quad 0 \\le L^* \\le 100 \\\\
 
                 \\text{with} \\quad g(t) & =
                 \\begin{cases}
-                    3 \cdot \\delta^2 \cdot ( t - \\frac{4}{29}) & t \\le \\delta  \\\\
+                    3 \\cdot \\delta^2 \\cdot ( t - \\frac{4}{29}) & t \\le \\delta  \\\\
                     t^3                                          & t   >  \\delta
                 \\end{cases}
                 \\quad ,& \\quad \\delta = \\frac{6}{29}
@@ -40,7 +40,7 @@ def grayscale_correction(lightness: float, max_in: float = 255.0, max_out: int =
 
             Y =
             \\begin{cases}
-                L^* / 902.33           & L^* \le 8 \\\\
+                L^* / 902.33           & L^* \\le 8 \\\\
                 ((L^* + 16) / 116)^3   & L^*  >  8
             \\end{cases} \\\\
             \\\\

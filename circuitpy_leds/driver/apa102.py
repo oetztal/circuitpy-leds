@@ -20,10 +20,10 @@ class APA102(Strip):
 
     def __init__(self, config: Config):
         self.num_leds = config.num_leds
-        max_clock_speed_hz = 4000000
         self._global_brightness = 0.3
         self.spi = spidev.SpiDev()  # Init the SPI device
         self.spi.open(0, 1)  # Open SPI port 0, slave device (CS)  1
+        max_clock_speed_hz = 4000000
         self.spi.max_speed_hz = max_clock_speed_hz  # should not be higher than 8000000
 
         self.led_colors = [(0.0, 0.0, 0.0)] * self.num_leds
@@ -99,8 +99,6 @@ class APA102(Strip):
 
 
     def __setitem__(self, index, value):
-        red, green, blue = value
-
         if index < 0:
             return  # Pixel is invisible, so ignore
         if index >= self.num_leds:
